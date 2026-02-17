@@ -114,6 +114,25 @@ function M.setup_keymaps(buf)
     end
   end, "jj abandon revision(s)")
 
+  map("s", function()
+    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+    if not rev then return end
+    local dests = vim.tbl_keys(marked_revs)
+    local cmd
+    if #dests == 0 then
+      cmd = { "squash", "-r", rev }
+    elseif #dests == 1 then
+      cmd = { "squash", "--from", rev, "--into", dests[1] }
+    else
+      vim.notify("jj squash: mark a single destination revision", vim.log.levels.ERROR)
+      return
+    end
+    if jj_run(cmd) then
+      marked_revs = {}
+      M.refresh(buf)
+    end
+  end, "jj squash revision into parent or marked revision")
+
   local source_modes = {
     { flag = "-s", label = "-s   rebase revision and all descendants" },
     { flag = "-r", label = "-r   rebase single revision only" },
