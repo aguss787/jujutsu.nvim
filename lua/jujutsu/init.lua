@@ -153,6 +153,15 @@ M.log = function()
     end
   end, { buffer = log_buf, desc = "jj abandon revision(s)" })
 
+  vim.keymap.set("n", "u", function()
+    local result = vim.system({ "jj", "undo" }, { text = true }):wait()
+    if result.code ~= 0 then
+      vim.notify("jj undo: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+    else
+      refresh_log_buf(log_buf)
+    end
+  end, { buffer = log_buf, desc = "jj undo" })
+
   vim.keymap.set("n", "d", function()
     local line = vim.api.nvim_get_current_line()
     local rev = line:match("[@◉○]%s+(%w+)")
