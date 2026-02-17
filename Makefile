@@ -1,15 +1,15 @@
 DEPS_DIR := deps
-MINI_TEST := $(DEPS_DIR)/mini.test
+PLENARY := $(DEPS_DIR)/plenary.nvim
 
 .PHONY: test deps
 
-deps: $(MINI_TEST)
-
-$(MINI_TEST):
-	mkdir -p $(DEPS_DIR)
-	git clone --depth=1 https://github.com/echasnovski/mini.test $(MINI_TEST)
-
 test: deps
 	nvim --headless --noplugin -u tests/minimal_init.lua \
-		-c "lua MiniTest.run()" \
-		-c "lua vim.cmd.qall()"
+		-c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal_init.lua'}"
+
+deps: $(PLENARY)
+
+$(PLENARY):
+	mkdir -p $(DEPS_DIR)
+	git clone --depth=1 https://github.com/nvim-lua/plenary.nvim $(PLENARY)
+

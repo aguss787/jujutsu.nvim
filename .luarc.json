@@ -3,14 +3,15 @@
     "version": "LuaJIT"
   },
   "diagnostics": {
-    "globals": ["vim", "MiniTest"]
+    "globals": ["vim", "describe", "it", "before_each", "after_each", "assert", "pending"]
   },
   "workspace": {
     "checkThirdParty": false,
     "library": [
       "$VIMRUNTIME/lua",
       "${3rd}/luv/library",
-      "deps/mini.test/lua"
+      "deps/plenary.nvim/lua",
+      "types"
     ]
   }
 }

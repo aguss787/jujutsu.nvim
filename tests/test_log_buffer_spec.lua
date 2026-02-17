@@ -1,5 +1,3 @@
-local T = MiniTest.new_set()
-
 local function reload()
   package.loaded["jujutsu.log_buffer"] = nil
   return require("jujutsu.log_buffer")
@@ -7,18 +5,20 @@ end
 
 -- setup_keymaps ---------------------------------------------------------------
 
-T["setup_keymaps"] = MiniTest.new_set()
+describe("setup_keymaps", function()
+  local buf
 
-local function with_buf(fn)
-  local buf = vim.api.nvim_create_buf(false, true)
-  fn(buf)
-  if vim.api.nvim_buf_is_valid(buf) then
-    vim.api.nvim_buf_delete(buf, { force = true })
-  end
-end
+  before_each(function()
+    buf = vim.api.nvim_create_buf(false, true)
+  end)
 
-T["setup_keymaps"]["registers all expected keymaps"] = function()
-  with_buf(function(buf)
+  after_each(function()
+    if vim.api.nvim_buf_is_valid(buf) then
+      vim.api.nvim_buf_delete(buf, { force = true })
+    end
+  end)
+
+  it("registers all expected keymaps", function()
     reload().setup_keymaps(buf)
 
     local lhs_set = {}
@@ -26,18 +26,16 @@ T["setup_keymaps"]["registers all expected keymaps"] = function()
       lhs_set[km.lhs] = true
     end
 
-    MiniTest.expect.equality(lhs_set["<CR>"], true)
-    MiniTest.expect.equality(lhs_set["m"], true)
-    MiniTest.expect.equality(lhs_set["M"], true)
-    MiniTest.expect.equality(lhs_set["n"], true)
-    MiniTest.expect.equality(lhs_set["a"], true)
-    MiniTest.expect.equality(lhs_set["u"], true)
-    MiniTest.expect.equality(lhs_set["d"], true)
+    assert.truthy(lhs_set["<CR>"])
+    assert.truthy(lhs_set["m"])
+    assert.truthy(lhs_set["M"])
+    assert.truthy(lhs_set["n"])
+    assert.truthy(lhs_set["a"])
+    assert.truthy(lhs_set["u"])
+    assert.truthy(lhs_set["d"])
   end)
-end
 
-T["setup_keymaps"]["does not leak keymaps into global scope"] = function()
-  with_buf(function(buf)
+  it("does not leak keymaps into global scope", function()
     reload().setup_keymaps(buf)
 
     local global_lhs = {}
@@ -45,28 +43,37 @@ T["setup_keymaps"]["does not leak keymaps into global scope"] = function()
       global_lhs[km.lhs] = true
     end
 
-    MiniTest.expect.equality(global_lhs["m"], nil)
-    MiniTest.expect.equality(global_lhs["M"], nil)
-    MiniTest.expect.equality(global_lhs["u"], nil)
+    assert.falsy(global_lhs["m"])
+    assert.falsy(global_lhs["M"])
+    assert.falsy(global_lhs["u"])
   end)
-end
 
-T["setup_keymaps"]["can be called multiple times without erroring"] = function()
-  with_buf(function(buf)
+  it("can be called multiple times without erroring", function()
     local lb = reload()
-    MiniTest.expect.no_error(function()
+    assert.has_no.errors(function()
       lb.setup_keymaps(buf)
       lb.setup_keymaps(buf)
     end)
   end)
-end
+end)
 
 -- refresh ---------------------------------------------------------------------
 
-T["refresh"] = MiniTest.new_set()
+describe("refresh", function()
+  local buf
 
-T["refresh"]["returns false outside a jj repo"] = function()
-  with_buf(function(buf)
+  before_each(function()
+    buf = vim.api.nvim_create_buf(false, true)
+    vim.bo[buf].modifiable = false
+  end)
+
+  after_each(function()
+    if vim.api.nvim_buf_is_valid(buf) then
+      vim.api.nvim_buf_delete(buf, { force = true })
+    end
+  end)
+
+  it("returns false outside a jj repo", function()
     local tmp = vim.fn.tempname()
     vim.fn.mkdir(tmp, "p")
     local orig = vim.fn.getcwd()
@@ -77,13 +84,10 @@ T["refresh"]["returns false outside a jj repo"] = function()
     vim.cmd("cd " .. orig)
     vim.fn.delete(tmp, "rf")
 
-    MiniTest.expect.equality(ok, false)
+    assert.is_false(ok)
   end)
-end
 
-T["refresh"]["leaves buffer unmodifiable after a failed refresh"] = function()
-  with_buf(function(buf)
-    vim.bo[buf].modifiable = false
+  it("leaves buffer unmodifiable after a failed refresh", function()
     local tmp = vim.fn.tempname()
     vim.fn.mkdir(tmp, "p")
     local orig = vim.fn.getcwd()
@@ -94,26 +98,20 @@ T["refresh"]["leaves buffer unmodifiable after a failed refresh"] = function()
     vim.cmd("cd " .. orig)
     vim.fn.delete(tmp, "rf")
 
-    MiniTest.expect.equality(vim.bo[buf].modifiable, false)
+    assert.is_false(vim.bo[buf].modifiable)
   end)
-end
 
-if vim.fn.executable("jj") == 1 then
-  T["refresh"]["populates buffer with jj log output"] = function()
-    with_buf(function(buf)
+  if vim.fn.executable("jj") == 1 then
+    it("populates buffer with jj log output", function()
       local ok = reload().refresh(buf)
-      MiniTest.expect.equality(ok, true)
+      assert.is_true(ok)
       local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-      MiniTest.expect.equality(#lines > 0, true)
+      assert.is_true(#lines > 0)
     end)
-  end
 
-  T["refresh"]["leaves buffer unmodifiable after a successful refresh"] = function()
-    with_buf(function(buf)
+    it("leaves buffer unmodifiable after a successful refresh", function()
       reload().refresh(buf)
-      MiniTest.expect.equality(vim.bo[buf].modifiable, false)
+      assert.is_false(vim.bo[buf].modifiable)
     end)
   end
-end
-
-return T
+end)
