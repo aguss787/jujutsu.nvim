@@ -25,6 +25,18 @@ local marked_revs = {}
 
 local marks_ns = vim.api.nvim_create_namespace("jjlog_marks")
 
+---Run a jj subcommand, notify on failure, return the result on success or nil on failure
+---@param args string[]
+---@return vim.SystemCompleted?
+local function jj_run(args)
+  local result = vim.system(vim.list_extend({ "jj" }, args), { text = true }):wait()
+  if result.code ~= 0 then
+    vim.notify("jj " .. args[1] .. ": " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+    return nil
+  end
+  return result
+end
+
 ---Re-apply mark highlights to buf based on marked_revs
 ---@param buf integer
 local function apply_mark_highlights(buf)
@@ -41,9 +53,8 @@ end
 ---@param buf integer
 ---@return boolean success
 local function refresh_log_buf(buf)
-  local result = vim.system({ "jj", "log" }, { text = true }):wait()
-  if result.code ~= 0 then
-    vim.notify("jj log: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+  local result = jj_run({ "log" })
+  if not result then
     return false
   end
   local lines = vim.split(result.stdout, "\n", { plain = true })
@@ -97,16 +108,11 @@ M.log = function()
   vim.bo[log_buf].filetype = "jjlog"
 
   vim.keymap.set("n", "<CR>", function()
-    local line = vim.api.nvim_get_current_line()
-    -- revision lines start with a graph node character (@, ◉, ○) followed by the change ID
-    local rev = line:match("[@◉○]%s+(%w+)")
+    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
     if not rev then
       return
     end
-    local edit_result = vim.system({ "jj", "edit", rev }, { text = true }):wait()
-    if edit_result.code ~= 0 then
-      vim.notify("jj edit: " .. (edit_result.stderr or "unknown error"), vim.log.levels.ERROR)
-    else
+    if jj_run({ "edit", rev }) then
       refresh_log_buf(log_buf)
     end
   end, { buffer = log_buf, desc = "jj edit revision under cursor" })
@@ -130,10 +136,7 @@ M.log = function()
     if not revs then
       return
     end
-    local result = vim.system(vim.list_extend({ "jj", "new" }, revs), { text = true }):wait()
-    if result.code ~= 0 then
-      vim.notify("jj new: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
-    else
+    if jj_run(vim.list_extend({ "new" }, revs)) then
       marked_revs = {}
       refresh_log_buf(log_buf)
     end
@@ -144,33 +147,26 @@ M.log = function()
     if not revs then
       return
     end
-    local result = vim.system(vim.list_extend({ "jj", "abandon" }, revs), { text = true }):wait()
-    if result.code ~= 0 then
-      vim.notify("jj abandon: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
-    else
+    if jj_run(vim.list_extend({ "abandon" }, revs)) then
       marked_revs = {}
       refresh_log_buf(log_buf)
     end
   end, { buffer = log_buf, desc = "jj abandon revision(s)" })
 
   vim.keymap.set("n", "u", function()
-    local result = vim.system({ "jj", "undo" }, { text = true }):wait()
-    if result.code ~= 0 then
-      vim.notify("jj undo: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
-    else
+    if jj_run({ "undo" }) then
       refresh_log_buf(log_buf)
     end
   end, { buffer = log_buf, desc = "jj undo" })
 
   vim.keymap.set("n", "d", function()
-    local line = vim.api.nvim_get_current_line()
-    local rev = line:match("[@◉○]%s+(%w+)")
+    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
     if not rev then
       return
     end
 
-    local result = vim.system({ "jj", "log", "-r", rev, "-T", "description", "--no-graph" }, { text = true }):wait()
-    local current_desc = (result.code == 0 and result.stdout or ""):gsub("\n$", "")
+    local result = jj_run({ "log", "-r", rev, "-T", "description", "--no-graph" })
+    local current_desc = result and result.stdout:gsub("\n$", "") or ""
 
     local desc_buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_name(desc_buf, "jj://describe/" .. rev)
@@ -183,10 +179,7 @@ M.log = function()
       buffer = desc_buf,
       callback = function()
         local desc = table.concat(vim.api.nvim_buf_get_lines(desc_buf, 0, -1, false), "\n")
-        local describe_result = vim.system({ "jj", "describe", "-r", rev, "-m", desc }, { text = true }):wait()
-        if describe_result.code ~= 0 then
-          vim.notify("jj describe: " .. (describe_result.stderr or "unknown error"), vim.log.levels.ERROR)
-        else
+        if jj_run({ "describe", "-r", rev, "-m", desc }) then
           vim.bo[desc_buf].modified = false
           refresh_log_buf(log_buf)
         end
