@@ -36,16 +36,34 @@ local function refresh_log_buf(buf)
   return true
 end
 
----Run `jj log` and show the output in a new scratch buffer
-M.log = function()
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.bo[buf].bufhidden = "wipe"
+---@type integer?
+local log_buf = nil
 
-  if not refresh_log_buf(buf) then
+---Run `jj log` and show the output in a new scratch buffer, reusing it if it already exists
+M.log = function()
+  if log_buf and vim.api.nvim_buf_is_valid(log_buf) then
+    refresh_log_buf(log_buf)
+    -- focus the existing window showing the buffer, or open a new split
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      if vim.api.nvim_win_get_buf(win) == log_buf then
+        vim.api.nvim_set_current_win(win)
+        return
+      end
+    end
+    vim.cmd.split()
+    vim.api.nvim_win_set_buf(0, log_buf)
     return
   end
 
-  vim.bo[buf].filetype = "jjlog"
+  log_buf = vim.api.nvim_create_buf(false, true)
+  vim.bo[log_buf].bufhidden = "wipe"
+
+  if not refresh_log_buf(log_buf) then
+    log_buf = nil
+    return
+  end
+
+  vim.bo[log_buf].filetype = "jjlog"
 
   vim.keymap.set("n", "<CR>", function()
     local line = vim.api.nvim_get_current_line()
@@ -58,12 +76,12 @@ M.log = function()
     if edit_result.code ~= 0 then
       vim.notify("jj edit: " .. (edit_result.stderr or "unknown error"), vim.log.levels.ERROR)
     else
-      refresh_log_buf(buf)
+      refresh_log_buf(log_buf)
     end
-  end, { buffer = buf, desc = "jj edit revision under cursor" })
+  end, { buffer = log_buf, desc = "jj edit revision under cursor" })
 
   vim.cmd.split()
-  vim.api.nvim_win_set_buf(0, buf)
+  vim.api.nvim_win_set_buf(0, log_buf)
 end
 
 return M
