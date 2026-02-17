@@ -1,0 +1,16 @@
+{
+  "runtime": {
+    "version": "LuaJIT"
+  },
+  "diagnostics": {
+    "globals": ["vim", "MiniTest"]
+  },
+  "workspace": {
+    "checkThirdParty": false,
+    "library": [
+      "$VIMRUNTIME/lua",
+      "${3rd}/luv/library",
+      "deps/mini.test/lua"
+    ]
+  }
+}
