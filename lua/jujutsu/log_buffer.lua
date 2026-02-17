@@ -114,6 +114,26 @@ function M.setup_keymaps(buf)
     end
   end, "jj abandon revision(s)")
 
+  map("r", function()
+    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+    if not rev then
+      return
+    end
+    local dests = vim.tbl_keys(marked_revs)
+    if #dests == 0 then
+      vim.notify("jj rebase: no marked revision to rebase onto", vim.log.levels.ERROR)
+      return
+    end
+    local cmd = { "rebase", "-s", rev }
+    for _, dest in ipairs(dests) do
+      vim.list_extend(cmd, { "-d", dest })
+    end
+    if jj_run(cmd) then
+      marked_revs = {}
+      M.refresh(buf)
+    end
+  end, "jj rebase -s revision onto marked destination(s)")
+
   map("u", function()
     if jj_run({ "undo" }) then
       M.refresh(buf)
