@@ -1,0 +1,41 @@
+*jujutsu.txt*    Neovim plugin for Jujutsu VCS
+
+==============================================================================
+CONTENTS                                                     *jujutsu-contents*
+
+  1. Introduction ................ |jujutsu-introduction|
+  2. Setup ....................... |jujutsu-setup|
+  3. Configuration ............... |jujutsu-configuration|
+
+==============================================================================
+INTRODUCTION                                             *jujutsu-introduction*
+
+jujutsu.nvim is a Neovim plugin for the Jujutsu version control system.
+
+==============================================================================
+SETUP                                                           *jujutsu-setup*
+
+Add the following to your Neovim config: >lua
+
+  require("jujutsu").setup()
+<
+
+==============================================================================
+CONFIGURATION                                           *jujutsu-configuration*
+
+Pass a table to |jujutsu-setup| to override defaults: >lua
+
+  require("jujutsu").setup({
+    field = "value",
+  })
+<
+
+Options:
+
+  field ~
+    Type: `string`
+    Default: `"value"`
+    Example config field.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
