@@ -114,25 +114,56 @@ function M.setup_keymaps(buf)
     end
   end, "jj abandon revision(s)")
 
-  map("r", function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
-    if not rev then
-      return
-    end
+  local source_modes = {
+    { flag = "-s", label = "-s   rebase revision and all descendants" },
+    { flag = "-r", label = "-r   rebase single revision only" },
+    { flag = "-b", label = "-b   rebase entire branch" },
+  }
+  local dest_modes = {
+    { flag = "-d",       label = "-d       rebase onto destination" },
+    { flag = "--before", label = "--before insert before destination" },
+    { flag = "--after",  label = "--after  insert after destination" },
+  }
+
+  local function run_rebase(rev, source_flag, dest_flag)
     local dests = vim.tbl_keys(marked_revs)
     if #dests == 0 then
       vim.notify("jj rebase: no marked revision to rebase onto", vim.log.levels.ERROR)
       return
     end
-    local cmd = { "rebase", "-s", rev }
+    local cmd = { "rebase", source_flag, rev }
     for _, dest in ipairs(dests) do
-      vim.list_extend(cmd, { "-d", dest })
+      vim.list_extend(cmd, { dest_flag, dest })
     end
     if jj_run(cmd) then
       marked_revs = {}
       M.refresh(buf)
     end
+  end
+
+  map("r", function()
+    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+    if not rev then return end
+    run_rebase(rev, "-s", "-d")
   end, "jj rebase -s revision onto marked destination(s)")
+
+  map("R", function()
+    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+    if not rev then return end
+    vim.ui.select(source_modes, {
+      prompt = "Source mode:",
+      format_item = function(item) return item.label end,
+    }, function(source)
+      if not source then return end
+      vim.ui.select(dest_modes, {
+        prompt = "Destination mode:",
+        format_item = function(item) return item.label end,
+      }, function(dest)
+        if not dest then return end
+        run_rebase(rev, source.flag, dest.flag)
+      end)
+    end)
+  end, "jj rebase with source/destination mode picker")
 
   map("u", function()
     if jj_run({ "undo" }) then
