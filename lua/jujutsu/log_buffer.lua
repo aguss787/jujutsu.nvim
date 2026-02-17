@@ -116,7 +116,9 @@ function M.setup_keymaps(buf)
 
   map("s", function()
     local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
-    if not rev then return end
+    if not rev then
+      return
+    end
     local dests = vim.tbl_keys(marked_revs)
     local cmd
     if #dests == 0 then
@@ -139,9 +141,9 @@ function M.setup_keymaps(buf)
     { flag = "-b", label = "-b   rebase entire branch" },
   }
   local dest_modes = {
-    { flag = "-d",       label = "-d       rebase onto destination" },
+    { flag = "-d", label = "-d       rebase onto destination" },
     { flag = "--before", label = "--before insert before destination" },
-    { flag = "--after",  label = "--after  insert after destination" },
+    { flag = "--after", label = "--after  insert after destination" },
   }
 
   local function run_rebase(rev, source_flag, dest_flag)
@@ -162,23 +164,35 @@ function M.setup_keymaps(buf)
 
   map("r", function()
     local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
-    if not rev then return end
+    if not rev then
+      return
+    end
     run_rebase(rev, "-s", "-d")
   end, "jj rebase -s revision onto marked destination(s)")
 
   map("R", function()
     local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
-    if not rev then return end
+    if not rev then
+      return
+    end
     vim.ui.select(source_modes, {
       prompt = "Source mode:",
-      format_item = function(item) return item.label end,
+      format_item = function(item)
+        return item.label
+      end,
     }, function(source)
-      if not source then return end
+      if not source then
+        return
+      end
       vim.ui.select(dest_modes, {
         prompt = "Destination mode:",
-        format_item = function(item) return item.label end,
+        format_item = function(item)
+          return item.label
+        end,
       }, function(dest)
-        if not dest then return end
+        if not dest then
+          return
+        end
         run_rebase(rev, source.flag, dest.flag)
       end)
     end)
