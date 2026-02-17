@@ -45,6 +45,8 @@ M.log = function()
     return
   end
 
+  vim.bo[buf].filetype = "jjlog"
+
   vim.keymap.set("n", "<CR>", function()
     local line = vim.api.nvim_get_current_line()
     -- revision lines start with a graph node character (@, ◉, ○) followed by the change ID
