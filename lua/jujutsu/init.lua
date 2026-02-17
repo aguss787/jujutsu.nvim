@@ -94,6 +94,20 @@ M.log = function()
     end
   end, { buffer = log_buf, desc = "jj new from revision under cursor" })
 
+  vim.keymap.set("n", "a", function()
+    local line = vim.api.nvim_get_current_line()
+    local rev = line:match("[@◉○]%s+(%w+)")
+    if not rev then
+      return
+    end
+    local result = vim.system({ "jj", "abandon", rev }, { text = true }):wait()
+    if result.code ~= 0 then
+      vim.notify("jj abandon: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+    else
+      refresh_log_buf(log_buf)
+    end
+  end, { buffer = log_buf, desc = "jj abandon revision under cursor" })
+
   vim.keymap.set("n", "d", function()
     local line = vim.api.nvim_get_current_line()
     local rev = line:match("[@◉○]%s+(%w+)")
