@@ -1,12 +1,35 @@
 local M = {}
 local log_buffer = require("jujutsu.log_buffer")
 
+---@class JujutsuKeymaps
+---@field edit string|false Key to edit the revision under cursor
+---@field mark string|false Key to toggle mark on the revision under cursor
+---@field clear_marks string|false Key to clear all marks
+---@field new string|false Key to create a new revision from revision(s)
+---@field abandon string|false Key to abandon revision(s)
+---@field squash string|false Key to squash revision into parent or marked revision
+---@field rebase string|false Key to rebase revision onto marked destination(s)
+---@field rebase_pick string|false Key to rebase with source/destination mode picker
+---@field undo string|false Key to undo the last operation
+---@field describe string|false Key to set the revision description
+
 ---@class JujutsuConfig
----@field field string Example config field
+---@field keymaps JujutsuKeymaps
 
 ---@type JujutsuConfig
 local defaults = {
-  field = "value",
+  keymaps = {
+    edit = "<CR>",
+    mark = "m",
+    clear_marks = "M",
+    new = "n",
+    abandon = "a",
+    squash = "s",
+    rebase = "r",
+    rebase_pick = "R",
+    undo = "u",
+    describe = "d",
+  },
 }
 
 ---@type JujutsuConfig
@@ -46,7 +69,7 @@ M.log = function()
   end
 
   vim.bo[log_buf].filetype = "jjlog"
-  log_buffer.setup_keymaps(log_buf)
+  log_buffer.setup_keymaps(log_buf, M.config.keymaps)
 
   vim.cmd.split()
   vim.api.nvim_win_set_buf(0, log_buf)

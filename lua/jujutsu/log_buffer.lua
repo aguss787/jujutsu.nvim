@@ -63,12 +63,15 @@ end
 
 ---Set up buffer-local keymaps for the log buffer
 ---@param buf integer
-function M.setup_keymaps(buf)
+---@param keymaps table<string, string|false>
+function M.setup_keymaps(buf, keymaps)
   local function map(key, fn, desc)
-    vim.keymap.set("n", key, fn, { buffer = buf, desc = desc })
+    if key ~= false then
+      vim.keymap.set("n", key, fn, { buffer = buf, desc = desc })
+    end
   end
 
-  map("<CR>", function()
+  map(keymaps.edit, function()
     local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
     if not rev then
       return
@@ -78,7 +81,7 @@ function M.setup_keymaps(buf)
     end
   end, "jj edit revision under cursor")
 
-  map("m", function()
+  map(keymaps.mark, function()
     local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
     if not rev then
       return
@@ -87,12 +90,12 @@ function M.setup_keymaps(buf)
     apply_mark_highlights(buf)
   end, "Toggle mark on revision under cursor")
 
-  map("M", function()
+  map(keymaps.clear_marks, function()
     marked_revs = {}
     vim.api.nvim_buf_clear_namespace(buf, marks_ns, 0, -1)
   end, "Clear all marks")
 
-  map("n", function()
+  map(keymaps.new, function()
     local revs = resolve_revs()
     if not revs then
       return
@@ -103,7 +106,7 @@ function M.setup_keymaps(buf)
     end
   end, "jj new from revision(s)")
 
-  map("a", function()
+  map(keymaps.abandon, function()
     local revs = resolve_revs()
     if not revs then
       return
@@ -114,7 +117,7 @@ function M.setup_keymaps(buf)
     end
   end, "jj abandon revision(s)")
 
-  map("s", function()
+  map(keymaps.squash, function()
     local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
     if not rev then
       return
@@ -162,7 +165,7 @@ function M.setup_keymaps(buf)
     end
   end
 
-  map("r", function()
+  map(keymaps.rebase, function()
     local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
     if not rev then
       return
@@ -170,7 +173,7 @@ function M.setup_keymaps(buf)
     run_rebase(rev, "-s", "-d")
   end, "jj rebase -s revision onto marked destination(s)")
 
-  map("R", function()
+  map(keymaps.rebase_pick, function()
     local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
     if not rev then
       return
@@ -198,13 +201,13 @@ function M.setup_keymaps(buf)
     end)
   end, "jj rebase with source/destination mode picker")
 
-  map("u", function()
+  map(keymaps.undo, function()
     if jj_run({ "undo" }) then
       M.refresh(buf)
     end
   end, "jj undo")
 
-  map("d", function()
+  map(keymaps.describe, function()
     local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
     if not rev then
       return
