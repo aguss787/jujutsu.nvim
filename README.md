@@ -59,6 +59,14 @@ Opens two selection menus to choose the rebase mode:
 
 ## Configuration
 
+The log buffer opens in a vertical split (left/right) by default. To use a horizontal split (top/bottom):
+
+```lua
+require("jujutsu").setup({
+  split = "horizontal",
+})
+```
+
 All keymaps can be remapped or disabled. Only the keys you specify are overridden; the rest keep their defaults.
 
 ```lua

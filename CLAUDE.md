@@ -59,6 +59,8 @@ make test
 
 When adding a new jj operation, add a test to `test_jj_calls_spec.lua` that mocks `vim.system`, triggers the keymap callback via `get_cb(buf, key)()`, and asserts the correct command was captured.
 
+**When fixing a bug, first add a failing test that reproduces the bug, then fix it.** This ensures the bug stays fixed and prevents regressions.
+
 ## Version Control
 
 This repo uses **Jujutsu (`jj`)** for version control (not plain git). Use `jj` commands for all VCS operations:

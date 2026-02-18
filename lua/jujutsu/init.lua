@@ -17,6 +17,7 @@ local log_buffer = require("jujutsu.log_buffer")
 
 ---@class JujutsuConfig
 ---@field keymaps JujutsuKeymaps
+---@field split "vertical"|"horizontal" How to split the window when opening the log buffer
 
 ---@type JujutsuConfig
 local defaults = {
@@ -34,6 +35,7 @@ local defaults = {
     refresh = "<C-r>",
     bookmark_set = "bs",
   },
+  split = "vertical",
 }
 
 ---@type JujutsuConfig
@@ -48,6 +50,11 @@ end
 ---@type integer?
 local log_buf = nil
 
+local function open_split()
+  local cmd = M.config.split == "vertical" and "vsplit" or "split"
+  vim.cmd(cmd)
+end
+
 ---Run `jj log` and show the output in a new scratch buffer, reusing it if it already exists
 M.log = function()
   if log_buf and vim.api.nvim_buf_is_valid(log_buf) then
@@ -59,7 +66,7 @@ M.log = function()
         return
       end
     end
-    vim.cmd.split()
+    open_split()
     vim.api.nvim_win_set_buf(0, log_buf)
     return
   end
@@ -75,7 +82,7 @@ M.log = function()
   vim.bo[log_buf].filetype = "jjlog"
   log_buffer.setup_keymaps(log_buf, M.config.keymaps)
 
-  vim.cmd.split()
+  open_split()
   vim.api.nvim_win_set_buf(0, log_buf)
 end
 
