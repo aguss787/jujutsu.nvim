@@ -195,6 +195,36 @@ describe("jj operation calls", function()
     assert.is_true(was_called(calls, { "jj", "bookmark", "move", "--to", "rev00001", "-B", "--from", "rev00002" }))
   end)
 
+  it("bookmark_track calls jj bookmark track with @origin appended when no @", function()
+    local orig_input = vim.ui.input
+    vim.ui.input = function(_opts, on_confirm)
+      on_confirm("main")
+    end
+    get_cb(buf, "bt")()
+    vim.ui.input = orig_input
+    assert.is_true(was_called(calls, { "jj", "bookmark", "track", "main@origin" }))
+  end)
+
+  it("bookmark_track preserves explicit @remote", function()
+    local orig_input = vim.ui.input
+    vim.ui.input = function(_opts, on_confirm)
+      on_confirm("main@upstream")
+    end
+    get_cb(buf, "bt")()
+    vim.ui.input = orig_input
+    assert.is_true(was_called(calls, { "jj", "bookmark", "track", "main@upstream" }))
+  end)
+
+  it("bookmark_untrack calls jj bookmark untrack with @origin appended when no @", function()
+    local orig_input = vim.ui.input
+    vim.ui.input = function(_opts, on_confirm)
+      on_confirm("main")
+    end
+    get_cb(buf, "bT")()
+    vim.ui.input = orig_input
+    assert.is_true(was_called(calls, { "jj", "bookmark", "untrack", "main@origin" }))
+  end)
+
   it("duplicate calls jj duplicate --onto with cursor revision onto marked destination", function()
     on_line(buf, 2, get_cb(buf, "m")) -- mark rev00002 as destination
     on_line(buf, 1, get_cb(buf, "p")) -- duplicate rev00001 onto rev00002

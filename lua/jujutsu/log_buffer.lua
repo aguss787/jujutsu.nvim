@@ -324,6 +324,28 @@ function M.setup_keymaps(buf, keymaps)
     bookmark_move(true)
   end, "jj bookmark move --allow-backwards from marked revision(s) to cursor revision")
 
+  local function bookmark_track_action(subcmd, prompt)
+    vim.ui.input({ prompt = prompt }, function(name)
+      if not name or name == "" then
+        return
+      end
+      if not name:find("@") then
+        name = name .. "@origin"
+      end
+      if jj.run({ "bookmark", subcmd, name }) then
+        M.refresh(buf)
+      end
+    end)
+  end
+
+  map(keymaps.bookmark_track, function()
+    bookmark_track_action("track", "Track bookmark (name or name@remote): ")
+  end, "jj bookmark track")
+
+  map(keymaps.bookmark_untrack, function()
+    bookmark_track_action("untrack", "Untrack bookmark (name or name@remote): ")
+  end, "jj bookmark untrack")
+
   local function run_duplicate(rev, dest_flag)
     local dests = vim.tbl_keys(marked_revs)
     if #dests == 0 then

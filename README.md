@@ -47,6 +47,8 @@ Open the log buffer:
 | `bd`   | `jj bookmark delete` on revision under cursor       |
 | `bm`   | `jj bookmark move` from marked rev(s) to cursor rev |
 | `bM`   | `jj bookmark move -B` (allow backwards/sideways)    |
+| `bt`   | `jj bookmark track` (appends `@origin` if no `@`)  |
+| `bT`   | `jj bookmark untrack` (appends `@origin` if no `@`) |
 | `gf`   | `jj git fetch`                                      |
 | `gp`   | `jj git push -r` revision(s)                        |
 | `gP`   | `jj git push --all --deleted`                       |
@@ -105,6 +107,8 @@ require("jujutsu").setup({
     bookmark_delete = "bd",
     bookmark_move = "bm",
     bookmark_move_backwards = "bM",
+    bookmark_track = "bt",
+    bookmark_untrack = "bT",
     git_fetch   = "gf",
     git_push    = "gp",
     git_push_all = "gP",
