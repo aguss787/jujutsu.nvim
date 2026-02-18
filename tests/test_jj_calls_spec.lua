@@ -1,4 +1,4 @@
-local default_keymaps = require("tests.helpers").default_keymaps
+local default_keymaps = require("tests.helpers").default_log_keymaps
 
 local function reload()
   package.loaded["jujutsu.log_buffer"] = nil

@@ -73,6 +73,7 @@ These keymaps are available in both the log and bookmark buffers:
 | `d`    | Edit revision description                           |
 | `p`    | `jj duplicate --onto` marked destination(s)         |
 | `P`    | `jj duplicate` with destination mode picker         |
+
 ### Marks
 
 Press `m` to mark revisions. Marks are used differently depending on the operation:
@@ -117,32 +118,39 @@ All keymaps can be remapped or disabled. Only the keys you specify are overridde
 ```lua
 require("jujutsu").setup({
   keymaps = {
-    edit        = "<CR>",
-    mark        = "m",
-    clear_marks = "M",
-    new         = "n",
-    abandon     = "a",
-    squash      = "s",
-    rebase      = "r",
-    rebase_pick = "R",
-    undo        = "u",
-    bookmark_set = "bs",
-    bookmark_delete = "bd",
-    bookmark_move = "bm",
-    bookmark_move_backwards = "bM",
-    bookmark_track = "bt",
-    bookmark_untrack = "bT",
-    git_fetch   = "gf",
-    git_push    = "gp",
-    git_push_all = "gP",
-    describe    = "d",
-    duplicate   = "p",
-    duplicate_pick = "P",
-    goto_log    = "gl",
-    goto_bookmark = "gb",
-    track       = "t",
-    untrack     = "T",
-    refresh     = "<C-r>",
+    log = {
+      edit        = "<CR>",
+      mark        = "m",
+      clear_marks = "M",
+      new         = "n",
+      abandon     = "a",
+      squash      = "s",
+      rebase      = "r",
+      rebase_pick = "R",
+      undo        = "u",
+      bookmark_set = "bs",
+      bookmark_delete = "bd",
+      bookmark_move = "bm",
+      bookmark_move_backwards = "bM",
+      bookmark_track = "bt",
+      bookmark_untrack = "bT",
+      git_fetch   = "gf",
+      git_push    = "gp",
+      git_push_all = "gP",
+      describe    = "d",
+      duplicate   = "p",
+      duplicate_pick = "P",
+      goto_log    = "gl",
+      goto_bookmark = "gb",
+      refresh     = "<C-r>",
+    },
+    bookmark = {
+      track       = "t",
+      untrack     = "T",
+      goto_log    = "gl",
+      goto_bookmark = "gb",
+      refresh     = "<C-r>",
+    },
   },
 })
 ```
@@ -152,7 +160,9 @@ Set a keymap to `false` to disable it:
 ```lua
 require("jujutsu").setup({
   keymaps = {
-    abandon = false, -- disable the abandon keymap
+    log = {
+      abandon = false, -- disable the abandon keymap
+    },
   },
 })
 ```

@@ -4,13 +4,28 @@
 CONTENTS                                                     *jujutsu-contents*
 
   1. Introduction ................ |jujutsu-introduction|
-  2. Setup ....................... |jujutsu-setup|
-  3. Configuration ............... |jujutsu-configuration|
+  2. Requirements ................ |jujutsu-requirements|
+  3. Setup ....................... |jujutsu-setup|
+  4. Commands .................... |jujutsu-commands|
+  5. Shared Keymaps .............. |jujutsu-shared-keymaps|
+  6. Log Buffer Keymaps .......... |jujutsu-log-keymaps|
+  7. Bookmark Buffer Keymaps ..... |jujutsu-bookmark-keymaps|
+  8. Marks ....................... |jujutsu-marks|
+  9. Configuration ............... |jujutsu-configuration|
 
 ==============================================================================
 INTRODUCTION                                             *jujutsu-introduction*
 
 jujutsu.nvim is a Neovim plugin for the Jujutsu version control system.
+It provides interactive log and bookmark list buffers with keymaps for
+common jj operations.
+
+==============================================================================
+REQUIREMENTS                                             *jujutsu-requirements*
+
+- Neovim 0.10+
+- `jj` (https://github.com/jj-vcs/jj) installed and in `$PATH`
+- noice.nvim (optional, for progress notifications on fetch/push)
 
 ==============================================================================
 SETUP                                                           *jujutsu-setup*
@@ -21,21 +36,172 @@ Add the following to your Neovim config: >lua
 <
 
 ==============================================================================
+COMMANDS                                                     *jujutsu-commands*
+
+                                                                          *:Jj*
+:Jj [subcommand]
+
+  Open a jujutsu buffer. Available subcommands:
+
+  `:Jj`           Open the log buffer (same as `:Jj log`)
+  `:Jj log`       Open the log buffer
+  `:Jj bookmark`  Open the bookmark list buffer
+
+  The log and bookmark buffers share the same window — opening one replaces
+  the other in the same split.
+
+==============================================================================
+SHARED KEYMAPS                                         *jujutsu-shared-keymaps*
+
+These keymaps are available in both the log and bookmark buffers:
+
+  `gl`      Switch to log buffer
+  `gb`      Switch to bookmark buffer
+  `<C-r>`   Refresh the buffer
+
+==============================================================================
+LOG BUFFER KEYMAPS                                       *jujutsu-log-keymaps*
+
+  `<CR>`    `jj edit` the revision under cursor
+  `m`       Toggle mark on revision under cursor (see |jujutsu-marks|)
+  `M`       Clear all marks
+  `n`       `jj new` from revision(s)
+  `a`       `jj abandon` revision(s)
+  `s`       `jj squash` into parent, or into single marked rev
+  `r`       `jj rebase -s` revision onto marked destination(s)
+  `R`       `jj rebase` with source/destination mode picker
+  `u`       `jj undo`
+  `d`       Edit revision description
+  `p`       `jj duplicate --onto` marked destination(s)
+  `P`       `jj duplicate` with destination mode picker
+  `bs`      `jj bookmark set` on revision under cursor
+  `bd`      `jj bookmark delete` on revision under cursor
+  `bm`      `jj bookmark move` from marked rev(s) to cursor rev
+  `bM`      `jj bookmark move -B` (allow backwards/sideways)
+  `bt`      `jj bookmark track` (appends `@origin` if no `@`)
+  `bT`      `jj bookmark untrack` (appends `@origin` if no `@`)
+  `gf`      `jj git fetch`
+  `gp`      `jj git push -r` revision(s)
+  `gP`      `jj git push --all --deleted`
+
+REBASE MODE PICKER (`R`) ~
+
+Opens two selection menus to choose the rebase mode:
+
+  Source:       `-s` (revision + descendants)
+                `-r` (single revision only)
+                `-b` (entire branch)
+
+  Destination:  `-d` (rebase onto)
+                `--before` (insert before)
+                `--after` (insert after)
+
+DUPLICATE MODE PICKER (`P`) ~
+
+Opens a selection menu to choose the destination mode:
+
+  `--onto`            duplicate onto destination
+  `--insert-after`    insert after destination
+  `--insert-before`   insert before destination
+
+==============================================================================
+BOOKMARK BUFFER KEYMAPS                             *jujutsu-bookmark-keymaps*
+
+  `t`       `jj bookmark track` the bookmark under cursor (`@origin`)
+  `T`       `jj bookmark untrack` the bookmark under cursor (`@origin`)
+
+==============================================================================
+MARKS                                                           *jujutsu-marks*
+
+Press `m` to mark revisions. Marks are used differently depending on the
+operation:
+
+  Source revisions ~
+    `n`, `a` act on all marked revisions instead of the cursor revision.
+
+  Destination revisions ~
+    `r`, `R`, `p`, `P` use marks as the destination to rebase/duplicate onto.
+    `s` squashes the cursor revision into the single marked destination.
+    `bm`, `bM` move bookmarks from marked revision(s) to the cursor revision.
+
+Press `M` to clear all marks.
+
+==============================================================================
 CONFIGURATION                                           *jujutsu-configuration*
 
 Pass a table to |jujutsu-setup| to override defaults: >lua
 
   require("jujutsu").setup({
-    field = "value",
+    split = "horizontal",
+    keymaps = {
+      log = {
+        edit = "e",
+      },
+      bookmark = {
+        track = "T",
+      },
+    },
   })
 <
 
-Options:
+                                                             *jujutsu-split*
+split ~
+  Type: `string`
+  Default: `"vertical"`
+  Values: `"vertical"` | `"horizontal"`
 
-  field ~
-    Type: `string`
-    Default: `"value"`
-    Example config field.
+  How to split the window when opening a buffer. `"vertical"` opens a
+  side-by-side split, `"horizontal"` opens a top/bottom split.
+
+                                                           *jujutsu-keymaps*
+keymaps ~
+  Type: `table`
+  Keymaps are split into `log` and `bookmark` sub-tables. Only the keys
+  you specify are overridden; the rest keep their defaults.
+
+  Set a keymap to `false` to disable it: >lua
+
+    require("jujutsu").setup({
+      keymaps = {
+        log = {
+          abandon = false,
+        },
+      },
+    })
+<
+
+  Log keymaps (defaults): ~
+    `edit`                    `"<CR>"`
+    `mark`                    `"m"`
+    `clear_marks`             `"M"`
+    `new`                     `"n"`
+    `abandon`                 `"a"`
+    `squash`                  `"s"`
+    `rebase`                  `"r"`
+    `rebase_pick`             `"R"`
+    `undo`                    `"u"`
+    `describe`                `"d"`
+    `duplicate`               `"p"`
+    `duplicate_pick`          `"P"`
+    `bookmark_set`            `"bs"`
+    `bookmark_delete`         `"bd"`
+    `bookmark_move`           `"bm"`
+    `bookmark_move_backwards` `"bM"`
+    `bookmark_track`          `"bt"`
+    `bookmark_untrack`        `"bT"`
+    `git_fetch`               `"gf"`
+    `git_push`                `"gp"`
+    `git_push_all`            `"gP"`
+    `goto_log`                `"gl"`
+    `goto_bookmark`           `"gb"`
+    `refresh`                 `"<C-r>"`
+
+  Bookmark keymaps (defaults): ~
+    `track`                   `"t"`
+    `untrack`                 `"T"`
+    `goto_log`                `"gl"`
+    `goto_bookmark`           `"gb"`
+    `refresh`                 `"<C-r>"`
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:

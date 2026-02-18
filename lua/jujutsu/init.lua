@@ -2,7 +2,7 @@ local M = {}
 local log_buffer = require("jujutsu.log_buffer")
 local bookmark_buffer = require("jujutsu.bookmark_buffer")
 
----@class JujutsuKeymaps
+---@class JujutsuLogKeymaps
 ---@field edit string|false Key to edit the revision under cursor
 ---@field mark string|false Key to toggle mark on the revision under cursor
 ---@field clear_marks string|false Key to clear all marks
@@ -15,7 +15,6 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@field describe string|false Key to set the revision description
 ---@field duplicate string|false Key to duplicate revision(s)
 ---@field duplicate_pick string|false Key to duplicate with destination mode picker
----@field refresh string|false Key to refresh the log buffer
 ---@field bookmark_set string|false Key to set a bookmark on the revision under cursor
 ---@field bookmark_delete string|false Key to delete a bookmark on the revision under cursor
 ---@field bookmark_move string|false Key to move bookmarks from marked revision(s) to cursor revision
@@ -27,8 +26,18 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@field git_push_all string|false Key to run jj git push --all --deleted
 ---@field goto_log string|false Key to switch to the log buffer
 ---@field goto_bookmark string|false Key to switch to the bookmark buffer
----@field track string|false Key to track a bookmark in the bookmark buffer
----@field untrack string|false Key to untrack a bookmark in the bookmark buffer
+---@field refresh string|false Key to refresh the buffer
+
+---@class JujutsuBookmarkKeymaps
+---@field track string|false Key to track a bookmark
+---@field untrack string|false Key to untrack a bookmark
+---@field goto_log string|false Key to switch to the log buffer
+---@field goto_bookmark string|false Key to switch to the bookmark buffer
+---@field refresh string|false Key to refresh the buffer
+
+---@class JujutsuKeymaps
+---@field log JujutsuLogKeymaps
+---@field bookmark JujutsuBookmarkKeymaps
 
 ---@class JujutsuConfig
 ---@field keymaps JujutsuKeymaps
@@ -37,32 +46,39 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@type JujutsuConfig
 local defaults = {
   keymaps = {
-    edit = "<CR>",
-    mark = "m",
-    clear_marks = "M",
-    new = "n",
-    abandon = "a",
-    squash = "s",
-    rebase = "r",
-    rebase_pick = "R",
-    undo = "u",
-    describe = "d",
-    duplicate = "p",
-    duplicate_pick = "P",
-    refresh = "<C-r>",
-    bookmark_set = "bs",
-    bookmark_delete = "bd",
-    bookmark_move = "bm",
-    bookmark_move_backwards = "bM",
-    bookmark_track = "bt",
-    bookmark_untrack = "bT",
-    git_fetch = "gf",
-    git_push = "gp",
-    git_push_all = "gP",
-    goto_log = "gl",
-    goto_bookmark = "gb",
-    track = "t",
-    untrack = "T",
+    log = {
+      edit = "<CR>",
+      mark = "m",
+      clear_marks = "M",
+      new = "n",
+      abandon = "a",
+      squash = "s",
+      rebase = "r",
+      rebase_pick = "R",
+      undo = "u",
+      describe = "d",
+      duplicate = "p",
+      duplicate_pick = "P",
+      bookmark_set = "bs",
+      bookmark_delete = "bd",
+      bookmark_move = "bm",
+      bookmark_move_backwards = "bM",
+      bookmark_track = "bt",
+      bookmark_untrack = "bT",
+      git_fetch = "gf",
+      git_push = "gp",
+      git_push_all = "gP",
+      goto_log = "gl",
+      goto_bookmark = "gb",
+      refresh = "<C-r>",
+    },
+    bookmark = {
+      track = "t",
+      untrack = "T",
+      goto_log = "gl",
+      goto_bookmark = "gb",
+      refresh = "<C-r>",
+    },
   },
   split = "vertical",
 }
@@ -129,7 +145,7 @@ M.log = function()
   end
 
   vim.bo[log_buf].filetype = "jjlog"
-  log_buffer.setup_keymaps(log_buf, M.config.keymaps)
+  log_buffer.setup_keymaps(log_buf, M.config.keymaps.log)
 
   show_buf(log_buf, bookmark_buf)
 end
@@ -151,7 +167,7 @@ M.bookmark = function()
   end
 
   vim.bo[bookmark_buf].filetype = "jjbookmark"
-  bookmark_buffer.setup_keymaps(bookmark_buf, M.config.keymaps)
+  bookmark_buffer.setup_keymaps(bookmark_buf, M.config.keymaps.bookmark)
 
   show_buf(bookmark_buf, log_buf)
 end
