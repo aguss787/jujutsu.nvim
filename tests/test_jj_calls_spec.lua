@@ -189,6 +189,12 @@ describe("jj operation calls", function()
     assert.is_true(was_called(calls, { "jj", "bookmark", "move", "--to", "rev00001", "--from", "rev00002" }))
   end)
 
+  it("bookmark_move_backwards calls jj bookmark move -B from marked revision to cursor revision", function()
+    on_line(buf, 2, get_cb(buf, "m")) -- mark rev00002 as source
+    on_line(buf, 1, get_cb(buf, "bM")) -- move backwards to rev00001
+    assert.is_true(was_called(calls, { "jj", "bookmark", "move", "--to", "rev00001", "-B", "--from", "rev00002" }))
+  end)
+
   it("git_fetch calls jj git fetch", function()
     on_line(buf, 1, get_cb(buf, "gf"))
     assert.is_true(was_called(calls, { "jj", "git", "fetch" }))

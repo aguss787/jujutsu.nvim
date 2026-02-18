@@ -46,6 +46,7 @@ Open the log buffer:
 | `bs`   | `jj bookmark set` on revision under cursor          |
 | `bd`   | `jj bookmark delete` on revision under cursor       |
 | `bm`   | `jj bookmark move` from marked rev(s) to cursor rev |
+| `bM`   | `jj bookmark move -B` (allow backwards/sideways)    |
 | `gf`   | `jj git fetch`                                      |
 | `gp`   | `jj git push`                                       |
 | `d`    | Edit revision description                           |
@@ -89,6 +90,7 @@ require("jujutsu").setup({
     bookmark_set = "bs",
     bookmark_delete = "bd",
     bookmark_move = "bm",
+    bookmark_move_backwards = "bM",
     git_fetch   = "gf",
     git_push    = "gp",
     describe    = "d",

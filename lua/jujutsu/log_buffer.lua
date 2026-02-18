@@ -272,7 +272,7 @@ function M.setup_keymaps(buf, keymaps)
     end
   end, "jj bookmark delete on revision under cursor")
 
-  map(keymaps.bookmark_move, function()
+  local function bookmark_move(allow_backwards)
     local rev = cursor_rev()
     if not rev then
       return
@@ -283,6 +283,9 @@ function M.setup_keymaps(buf, keymaps)
       return
     end
     local cmd = { "bookmark", "move", "--to", rev }
+    if allow_backwards then
+      table.insert(cmd, "-B")
+    end
     for _, source in ipairs(sources) do
       vim.list_extend(cmd, { "--from", source })
     end
@@ -290,7 +293,15 @@ function M.setup_keymaps(buf, keymaps)
       marked_revs = {}
       M.refresh(buf)
     end
+  end
+
+  map(keymaps.bookmark_move, function()
+    bookmark_move(false)
   end, "jj bookmark move from marked revision(s) to cursor revision")
+
+  map(keymaps.bookmark_move_backwards, function()
+    bookmark_move(true)
+  end, "jj bookmark move --allow-backwards from marked revision(s) to cursor revision")
 
   map(keymaps.describe, function()
     local rev = cursor_rev()
