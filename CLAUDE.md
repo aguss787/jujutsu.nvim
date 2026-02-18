@@ -62,6 +62,8 @@ When adding a new jj operation, add a test to `test_jj_calls_spec.lua` that mock
 
 **When fixing a bug, first add a failing test that reproduces the bug, then fix it.** This ensures the bug stays fixed and prevents regressions.
 
+**Update `README.md` after every feature.** Add new keymaps to the keymaps table, update the config example, and document any new behaviour (marks usage, picker modes, etc.).
+
 ## Version Control
 
 This repo uses **Jujutsu (`jj`)** for version control (not plain git). Use `jj` commands for all VCS operations:

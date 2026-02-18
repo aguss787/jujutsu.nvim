@@ -56,7 +56,12 @@ Open the log buffer:
 
 ### Marks
 
-Press `m` to mark revisions. When marks are set, operations like `n`, `a`, `r`, and `R` act on all marked revisions instead of the one under the cursor. `s` squashes the cursor revision into the single marked destination. Press `M` to clear all marks.
+Press `m` to mark revisions. Marks are used differently depending on the operation:
+
+- **Source revisions:** `n`, `a` act on all marked revisions instead of the cursor revision.
+- **Destination revisions:** `r`, `R`, `p`, `P` use marks as the destination to rebase/duplicate onto. `s` squashes the cursor revision into the single marked destination. `bm`, `bM` move bookmarks from marked revision(s) to the cursor revision.
+
+Press `M` to clear all marks.
 
 ### Rebase Mode Picker (`R`)
 
@@ -64,6 +69,12 @@ Opens two selection menus to choose the rebase mode:
 
 - **Source:** `-s` (revision + descendants), `-r` (single revision), `-b` (entire branch)
 - **Destination:** `-d` (rebase onto), `--before` (insert before), `--after` (insert after)
+
+### Duplicate Mode Picker (`P`)
+
+Opens a selection menu to choose the destination mode:
+
+- `--onto` (duplicate onto destination), `--insert-after` (insert after), `--insert-before` (insert before)
 
 ## Configuration
 
