@@ -3,6 +3,20 @@ local function reload()
   return require("jujutsu.log_buffer")
 end
 
+local default_keymaps = {
+  edit = "<CR>",
+  mark = "m",
+  clear_marks = "M",
+  new = "n",
+  abandon = "a",
+  squash = "s",
+  rebase = "r",
+  rebase_pick = "R",
+  undo = "u",
+  describe = "d",
+  refresh = "<C-r>",
+}
+
 -- setup_keymaps ---------------------------------------------------------------
 
 describe("setup_keymaps", function()
@@ -19,7 +33,7 @@ describe("setup_keymaps", function()
   end)
 
   it("registers all expected keymaps", function()
-    reload().setup_keymaps(buf)
+    reload().setup_keymaps(buf, default_keymaps)
 
     local lhs_set = {}
     for _, km in ipairs(vim.api.nvim_buf_get_keymap(buf, "n")) do
@@ -36,7 +50,7 @@ describe("setup_keymaps", function()
   end)
 
   it("does not leak keymaps into global scope", function()
-    reload().setup_keymaps(buf)
+    reload().setup_keymaps(buf, default_keymaps)
 
     local global_lhs = {}
     for _, km in ipairs(vim.api.nvim_get_keymap("n")) do
@@ -51,8 +65,8 @@ describe("setup_keymaps", function()
   it("can be called multiple times without erroring", function()
     local lb = reload()
     assert.has_no.errors(function()
-      lb.setup_keymaps(buf)
-      lb.setup_keymaps(buf)
+      lb.setup_keymaps(buf, default_keymaps)
+      lb.setup_keymaps(buf, default_keymaps)
     end)
   end)
 end)

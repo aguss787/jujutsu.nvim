@@ -45,6 +45,20 @@ Reload the Lua module after changes (without restarting Neovim):
 - Buffer-local keymaps use `{ buffer = buf }` — never set global keymaps from within feature functions
 - `refresh_log_buf(buf)` pattern: temporarily set `modifiable = true`, update lines, set back to `false`
 
+## Testing
+
+Run the test suite:
+```sh
+make test
+```
+
+**Every new feature must have tests.** Add them to the appropriate file in `tests/`:
+- `test_init_spec.lua` — config and setup behaviour
+- `test_log_buffer_spec.lua` — buffer state and keymap registration
+- `test_jj_calls_spec.lua` — jj command invocations (mock `vim.system` and assert the exact args)
+
+When adding a new jj operation, add a test to `test_jj_calls_spec.lua` that mocks `vim.system`, triggers the keymap callback via `get_cb(buf, key)()`, and asserts the correct command was captured.
+
 ## Version Control
 
 This repo uses **Jujutsu (`jj`)** for version control (not plain git). Use `jj` commands for all VCS operations:
