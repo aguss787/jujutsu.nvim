@@ -6,6 +6,7 @@ A Neovim plugin for the [Jujutsu](https://github.com/jj-vcs/jj) version control 
 
 - Neovim 0.10+
 - [`jj`](https://github.com/jj-vcs/jj) installed and in `$PATH`
+- [noice.nvim](https://github.com/folke/noice.nvim) (optional, for progress notifications on fetch/push)
 
 ## Installation
 
@@ -43,6 +44,8 @@ Open the log buffer:
 | `R`    | `jj rebase` with source/destination mode picker     |
 | `u`    | `jj undo`                                           |
 | `bs`   | `jj bookmark set` on revision under cursor          |
+| `gf`   | `jj git fetch`                                      |
+| `gp`   | `jj git push`                                       |
 | `d`    | Edit revision description                           |
 | `<C-r>` | Refresh the log buffer                             |
 
@@ -82,6 +85,8 @@ require("jujutsu").setup({
     rebase_pick = "R",
     undo        = "u",
     bookmark_set = "bs",
+    git_fetch   = "gf",
+    git_push    = "gp",
     describe    = "d",
     refresh     = "<C-r>",
   },

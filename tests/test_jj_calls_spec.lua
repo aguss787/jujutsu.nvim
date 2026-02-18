@@ -14,6 +14,8 @@ local default_keymaps = {
   rebase_pick = "R",
   undo = "u",
   bookmark_set = "bs",
+  git_fetch = "gf",
+  git_push = "gp",
   describe = "d",
   refresh = "<C-r>",
 }
@@ -76,12 +78,17 @@ describe("jj operation calls", function()
   before_each(function()
     calls = {}
     orig_system = vim.system
-    vim.system = function(cmd, _opts)
+    vim.system = function(cmd, _opts, on_exit)
       table.insert(calls, vim.deepcopy(cmd))
       local stdout = cmd[2] == "log" and (LINE1 .. "\n") or ""
+      local result = { code = 0, stdout = stdout, stderr = "" }
+      if on_exit then
+        on_exit(result)
+        return
+      end
       return {
         wait = function()
-          return { code = 0, stdout = stdout, stderr = "" }
+          return result
         end,
       }
     end
@@ -176,6 +183,16 @@ describe("jj operation calls", function()
     on_line(buf, 1, get_cb(buf, "bs"))
     vim.ui.input = orig_input
     assert.is_true(was_called(calls, { "jj", "bookmark", "set", "my-bookmark", "-r", "rev00001" }))
+  end)
+
+  it("git_fetch calls jj git fetch", function()
+    on_line(buf, 1, get_cb(buf, "gf"))
+    assert.is_true(was_called(calls, { "jj", "git", "fetch" }))
+  end)
+
+  it("git_push calls jj git push", function()
+    on_line(buf, 1, get_cb(buf, "gp"))
+    assert.is_true(was_called(calls, { "jj", "git", "push" }))
   end)
 
   it("describe buffer is closed after saving", function()

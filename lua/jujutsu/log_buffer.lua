@@ -4,6 +4,7 @@ local M = {}
 local marked_revs = {}
 
 local marks_ns = vim.api.nvim_create_namespace("jjlog_marks")
+local progress = require("jujutsu.progress")
 
 ---Run a jj subcommand, notify on failure, return the result on success or nil on failure
 ---@param args string[]
@@ -206,6 +207,34 @@ function M.setup_keymaps(buf, keymaps)
       M.refresh(buf)
     end
   end, "jj undo")
+
+  map(keymaps.git_fetch, function()
+    progress.start("git_fetch", "fetching...")
+    vim.system({ "jj", "git", "fetch" }, { text = true }, function(result)
+      vim.schedule(function()
+        if result.code ~= 0 then
+          progress.stop("git_fetch", " " .. (result.stderr or "unknown error"))
+          return
+        end
+        M.refresh(buf)
+        progress.stop("git_fetch", "done")
+      end)
+    end)
+  end, "jj git fetch")
+
+  map(keymaps.git_push, function()
+    progress.start("git_push", "pushing...")
+    vim.system({ "jj", "git", "push" }, { text = true }, function(result)
+      vim.schedule(function()
+        if result.code ~= 0 then
+          progress.stop("git_push", " " .. (result.stderr or "unknown error"))
+          return
+        end
+        M.refresh(buf)
+        progress.stop("git_push", "done")
+      end)
+    end)
+  end, "jj git push")
 
   map(keymaps.refresh, function()
     if M.refresh(buf) then

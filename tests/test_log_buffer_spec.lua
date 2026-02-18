@@ -14,6 +14,8 @@ local default_keymaps = {
   rebase_pick = "R",
   undo = "u",
   bookmark_set = "bs",
+  git_fetch = "gf",
+  git_push = "gp",
   describe = "d",
   refresh = "<C-r>",
 }

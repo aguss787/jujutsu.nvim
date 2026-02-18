@@ -14,6 +14,8 @@ local log_buffer = require("jujutsu.log_buffer")
 ---@field describe string|false Key to set the revision description
 ---@field refresh string|false Key to refresh the log buffer
 ---@field bookmark_set string|false Key to set a bookmark on the revision under cursor
+---@field git_fetch string|false Key to run jj git fetch
+---@field git_push string|false Key to run jj git push
 
 ---@class JujutsuConfig
 ---@field keymaps JujutsuKeymaps
@@ -34,6 +36,8 @@ local defaults = {
     describe = "d",
     refresh = "<C-r>",
     bookmark_set = "bs",
+    git_fetch = "gf",
+    git_push = "gp",
   },
   split = "vertical",
 }
