@@ -44,6 +44,7 @@ Open the log buffer:
 | `R`    | `jj rebase` with source/destination mode picker     |
 | `u`    | `jj undo`                                           |
 | `bs`   | `jj bookmark set` on revision under cursor          |
+| `bd`   | `jj bookmark delete` on revision under cursor       |
 | `gf`   | `jj git fetch`                                      |
 | `gp`   | `jj git push`                                       |
 | `d`    | Edit revision description                           |
@@ -85,6 +86,7 @@ require("jujutsu").setup({
     rebase_pick = "R",
     undo        = "u",
     bookmark_set = "bs",
+    bookmark_delete = "bd",
     git_fetch   = "gf",
     git_push    = "gp",
     describe    = "d",

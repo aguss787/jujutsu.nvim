@@ -67,7 +67,12 @@ describe("jj operation calls", function()
     orig_system = vim.system
     vim.system = function(cmd, _opts, on_exit)
       table.insert(calls, vim.deepcopy(cmd))
-      local stdout = cmd[2] == "log" and (LINE1 .. "\n") or ""
+      local stdout = ""
+      if cmd[2] == "log" then
+        stdout = LINE1 .. "\n"
+      elseif cmd[2] == "bookmark" and cmd[3] == "list" then
+        stdout = "my-bookmark\n"
+      end
       local result = { code = 0, stdout = stdout, stderr = "" }
       if on_exit then
         on_exit(result)
@@ -170,6 +175,12 @@ describe("jj operation calls", function()
     on_line(buf, 1, get_cb(buf, "bs"))
     vim.ui.input = orig_input
     assert.is_true(was_called(calls, { "jj", "bookmark", "set", "my-bookmark", "-r", "rev00001" }))
+  end)
+
+  it("bookmark_delete calls jj bookmark delete with the bookmark on cursor revision", function()
+    on_line(buf, 1, get_cb(buf, "bd"))
+    assert.is_true(was_called(calls, { "jj", "bookmark", "list", "-r", "rev00001", "-T", 'name ++ "\\n"' }))
+    assert.is_true(was_called(calls, { "jj", "bookmark", "delete", "my-bookmark" }))
   end)
 
   it("git_fetch calls jj git fetch", function()

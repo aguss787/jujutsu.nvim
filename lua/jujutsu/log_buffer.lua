@@ -242,6 +242,36 @@ function M.setup_keymaps(buf, keymaps)
     end)
   end, "jj bookmark set on revision under cursor")
 
+  map(keymaps.bookmark_delete, function()
+    local rev = cursor_rev()
+    if not rev then
+      return
+    end
+    local result = jj.run({ "bookmark", "list", "-r", rev, "-T", 'name ++ "\\n"' })
+    if not result then
+      return
+    end
+    local names = vim.split(result.stdout, "\n", { plain = true, trimempty = true })
+    if #names == 0 then
+      vim.notify("jj bookmark delete: no bookmarks on this revision", vim.log.levels.ERROR)
+      return
+    end
+    local function delete(name)
+      if jj.run({ "bookmark", "delete", name }) then
+        M.refresh(buf)
+      end
+    end
+    if #names == 1 then
+      delete(names[1])
+    else
+      vim.ui.select(names, { prompt = "Delete bookmark:" }, function(name)
+        if name then
+          delete(name)
+        end
+      end)
+    end
+  end, "jj bookmark delete on revision under cursor")
+
   map(keymaps.describe, function()
     local rev = cursor_rev()
     if not rev then
