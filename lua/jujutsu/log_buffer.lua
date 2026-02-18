@@ -207,6 +207,12 @@ function M.setup_keymaps(buf, keymaps)
     end
   end, "jj undo")
 
+  map(keymaps.refresh, function()
+    if M.refresh(buf) then
+      vim.notify("jj log: refreshed", vim.log.levels.INFO)
+    end
+  end, "Refresh the log buffer")
+
   map(keymaps.describe, function()
     local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
     if not rev then

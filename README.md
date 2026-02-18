@@ -43,6 +43,7 @@ Open the log buffer:
 | `R`    | `jj rebase` with source/destination mode picker     |
 | `u`    | `jj undo`                                           |
 | `d`    | Edit revision description                           |
+| `<C-r>` | Refresh the log buffer                             |
 
 ### Marks
 
@@ -72,6 +73,7 @@ require("jujutsu").setup({
     rebase_pick = "R",
     undo        = "u",
     describe    = "d",
+    refresh     = "<C-r>",
   },
 })
 ```

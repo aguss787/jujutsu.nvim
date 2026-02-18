@@ -12,6 +12,7 @@ local log_buffer = require("jujutsu.log_buffer")
 ---@field rebase_pick string|false Key to rebase with source/destination mode picker
 ---@field undo string|false Key to undo the last operation
 ---@field describe string|false Key to set the revision description
+---@field refresh string|false Key to refresh the log buffer
 
 ---@class JujutsuConfig
 ---@field keymaps JujutsuKeymaps
@@ -29,6 +30,7 @@ local defaults = {
     rebase_pick = "R",
     undo = "u",
     describe = "d",
+    refresh = "<C-r>",
   },
 }
 
