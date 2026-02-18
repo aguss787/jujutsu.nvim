@@ -236,6 +236,7 @@ function M.setup_keymaps(buf, keymaps)
         if jj_run({ "describe", "-r", rev, "-m", desc }) then
           vim.bo[desc_buf].modified = false
           M.refresh(buf)
+          vim.api.nvim_buf_delete(desc_buf, { force = false })
         end
       end,
     })

@@ -167,6 +167,14 @@ describe("jj operation calls", function()
     assert.is_true(was_called(calls, { "jj", "undo" }))
   end)
 
+  it("describe buffer is closed after saving", function()
+    on_line(buf, 1, get_cb(buf, "d"))
+    local desc_buf = vim.fn.bufnr("jj://describe/rev00001")
+    assert.is_true(desc_buf ~= -1)
+    vim.api.nvim_exec_autocmds("BufWriteCmd", { buffer = desc_buf, modeline = false })
+    assert.is_false(vim.api.nvim_buf_is_valid(desc_buf))
+  end)
+
   it("clear_marks removes marks so next operation uses cursor revision", function()
     on_line(buf, 2, get_cb(buf, "m")) -- mark rev00002
     on_line(buf, 1, get_cb(buf, "M")) -- clear all marks
