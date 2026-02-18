@@ -1,24 +1,9 @@
+local default_keymaps = require("tests.helpers").default_keymaps
+
 local function reload()
   package.loaded["jujutsu.log_buffer"] = nil
   return require("jujutsu.log_buffer")
 end
-
-local default_keymaps = {
-  edit = "<CR>",
-  mark = "m",
-  clear_marks = "M",
-  new = "n",
-  abandon = "a",
-  squash = "s",
-  rebase = "r",
-  rebase_pick = "R",
-  undo = "u",
-  bookmark_set = "bs",
-  git_fetch = "gf",
-  git_push = "gp",
-  describe = "d",
-  refresh = "<C-r>",
-}
 
 -- Fake jj log lines whose revision IDs are extracted by the node pattern
 local LINE1 = "○  rev00001 a@b.com 2024-01-01 first commit"

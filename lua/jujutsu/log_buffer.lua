@@ -4,18 +4,14 @@ local M = {}
 local marked_revs = {}
 
 local marks_ns = vim.api.nvim_create_namespace("jjlog_marks")
-local progress = require("jujutsu.progress")
+local jj = require("jujutsu.jj")
 
----Run a jj subcommand, notify on failure, return the result on success or nil on failure
----@param args string[]
----@return vim.SystemCompleted?
-local function jj_run(args)
-  local result = vim.system(vim.list_extend({ "jj" }, args), { text = true }):wait()
-  if result.code ~= 0 then
-    vim.notify("jj " .. args[1] .. ": " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
-    return nil
-  end
-  return result
+local REV_PATTERN = "[@◉○◆]%s+(%w+)"
+
+---Extract the revision ID from the current line, or nil if none
+---@return string?
+local function cursor_rev()
+  return vim.api.nvim_get_current_line():match(REV_PATTERN)
 end
 
 ---Re-apply mark highlights to buf based on marked_revs
@@ -23,7 +19,7 @@ end
 local function apply_mark_highlights(buf)
   vim.api.nvim_buf_clear_namespace(buf, marks_ns, 0, -1)
   for i, line in ipairs(vim.api.nvim_buf_get_lines(buf, 0, -1, false)) do
-    local rev = line:match("[@◉○◆]%s+(%w+)")
+    local rev = line:match(REV_PATTERN)
     if rev and marked_revs[rev] then
       vim.api.nvim_buf_set_extmark(buf, marks_ns, i - 1, 0, { line_hl_group = "Visual" })
     end
@@ -37,9 +33,55 @@ local function resolve_revs()
   if #revs > 0 then
     return revs
   end
-  local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
+  local rev = cursor_rev()
   if rev then
     return { rev }
+  end
+end
+
+---Resolve revisions, run a jj subcommand with them, clear marks and refresh
+---@param buf integer
+---@param subcmd string
+local function revs_action(buf, subcmd)
+  local revs = resolve_revs()
+  if not revs then
+    return
+  end
+  if jj.run(vim.list_extend({ subcmd }, revs)) then
+    marked_revs = {}
+    M.refresh(buf)
+  end
+end
+
+local source_modes = {
+  { flag = "-s", label = "-s   rebase revision and all descendants" },
+  { flag = "-r", label = "-r   rebase single revision only" },
+  { flag = "-b", label = "-b   rebase entire branch" },
+}
+local dest_modes = {
+  { flag = "-d", label = "-d       rebase onto destination" },
+  { flag = "--before", label = "--before insert before destination" },
+  { flag = "--after", label = "--after  insert after destination" },
+}
+
+---Run jj rebase with the given source and destination flags
+---@param buf integer
+---@param rev string
+---@param source_flag string
+---@param dest_flag string
+local function run_rebase(buf, rev, source_flag, dest_flag)
+  local dests = vim.tbl_keys(marked_revs)
+  if #dests == 0 then
+    vim.notify("jj rebase: no marked revision to rebase onto", vim.log.levels.ERROR)
+    return
+  end
+  local cmd = { "rebase", source_flag, rev }
+  for _, dest in ipairs(dests) do
+    vim.list_extend(cmd, { dest_flag, dest })
+  end
+  if jj.run(cmd) then
+    marked_revs = {}
+    M.refresh(buf)
   end
 end
 
@@ -47,7 +89,7 @@ end
 ---@param buf integer
 ---@return boolean success
 function M.refresh(buf)
-  local result = jj_run({ "log" })
+  local result = jj.run({ "log" })
   if not result then
     return false
   end
@@ -73,17 +115,17 @@ function M.setup_keymaps(buf, keymaps)
   end
 
   map(keymaps.edit, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
+    local rev = cursor_rev()
     if not rev then
       return
     end
-    if jj_run({ "edit", rev }) then
+    if jj.run({ "edit", rev }) then
       M.refresh(buf)
     end
   end, "jj edit revision under cursor")
 
   map(keymaps.mark, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
+    local rev = cursor_rev()
     if not rev then
       return
     end
@@ -97,29 +139,15 @@ function M.setup_keymaps(buf, keymaps)
   end, "Clear all marks")
 
   map(keymaps.new, function()
-    local revs = resolve_revs()
-    if not revs then
-      return
-    end
-    if jj_run(vim.list_extend({ "new" }, revs)) then
-      marked_revs = {}
-      M.refresh(buf)
-    end
+    revs_action(buf, "new")
   end, "jj new from revision(s)")
 
   map(keymaps.abandon, function()
-    local revs = resolve_revs()
-    if not revs then
-      return
-    end
-    if jj_run(vim.list_extend({ "abandon" }, revs)) then
-      marked_revs = {}
-      M.refresh(buf)
-    end
+    revs_action(buf, "abandon")
   end, "jj abandon revision(s)")
 
   map(keymaps.squash, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
+    local rev = cursor_rev()
     if not rev then
       return
     end
@@ -133,49 +161,22 @@ function M.setup_keymaps(buf, keymaps)
       vim.notify("jj squash: mark a single destination revision", vim.log.levels.ERROR)
       return
     end
-    if jj_run(cmd) then
+    if jj.run(cmd) then
       marked_revs = {}
       M.refresh(buf)
     end
   end, "jj squash revision into parent or marked revision")
 
-  local source_modes = {
-    { flag = "-s", label = "-s   rebase revision and all descendants" },
-    { flag = "-r", label = "-r   rebase single revision only" },
-    { flag = "-b", label = "-b   rebase entire branch" },
-  }
-  local dest_modes = {
-    { flag = "-d", label = "-d       rebase onto destination" },
-    { flag = "--before", label = "--before insert before destination" },
-    { flag = "--after", label = "--after  insert after destination" },
-  }
-
-  local function run_rebase(rev, source_flag, dest_flag)
-    local dests = vim.tbl_keys(marked_revs)
-    if #dests == 0 then
-      vim.notify("jj rebase: no marked revision to rebase onto", vim.log.levels.ERROR)
-      return
-    end
-    local cmd = { "rebase", source_flag, rev }
-    for _, dest in ipairs(dests) do
-      vim.list_extend(cmd, { dest_flag, dest })
-    end
-    if jj_run(cmd) then
-      marked_revs = {}
-      M.refresh(buf)
-    end
-  end
-
   map(keymaps.rebase, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
+    local rev = cursor_rev()
     if not rev then
       return
     end
-    run_rebase(rev, "-s", "-d")
+    run_rebase(buf, rev, "-s", "-d")
   end, "jj rebase -s revision onto marked destination(s)")
 
   map(keymaps.rebase_pick, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
+    local rev = cursor_rev()
     if not rev then
       return
     end
@@ -197,42 +198,26 @@ function M.setup_keymaps(buf, keymaps)
         if not dest then
           return
         end
-        run_rebase(rev, source.flag, dest.flag)
+        run_rebase(buf, rev, source.flag, dest.flag)
       end)
     end)
   end, "jj rebase with source/destination mode picker")
 
   map(keymaps.undo, function()
-    if jj_run({ "undo" }) then
+    if jj.run({ "undo" }) then
       M.refresh(buf)
     end
   end, "jj undo")
 
   map(keymaps.git_fetch, function()
-    progress.start("git_fetch", "fetching...")
-    vim.system({ "jj", "git", "fetch" }, { text = true }, function(result)
-      vim.schedule(function()
-        if result.code ~= 0 then
-          progress.stop("git_fetch", " " .. (result.stderr or "unknown error"))
-          return
-        end
-        M.refresh(buf)
-        progress.stop("git_fetch", "done")
-      end)
+    jj.run_async("git_fetch", "fetching...", { "git", "fetch" }, function()
+      M.refresh(buf)
     end)
   end, "jj git fetch")
 
   map(keymaps.git_push, function()
-    progress.start("git_push", "pushing...")
-    vim.system({ "jj", "git", "push" }, { text = true }, function(result)
-      vim.schedule(function()
-        if result.code ~= 0 then
-          progress.stop("git_push", " " .. (result.stderr or "unknown error"))
-          return
-        end
-        M.refresh(buf)
-        progress.stop("git_push", "done")
-      end)
+    jj.run_async("git_push", "pushing...", { "git", "push" }, function()
+      M.refresh(buf)
     end)
   end, "jj git push")
 
@@ -243,7 +228,7 @@ function M.setup_keymaps(buf, keymaps)
   end, "Refresh the log buffer")
 
   map(keymaps.bookmark_set, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
+    local rev = cursor_rev()
     if not rev then
       return
     end
@@ -251,19 +236,19 @@ function M.setup_keymaps(buf, keymaps)
       if not name or name == "" then
         return
       end
-      if jj_run({ "bookmark", "set", name, "-r", rev }) then
+      if jj.run({ "bookmark", "set", name, "-r", rev }) then
         M.refresh(buf)
       end
     end)
   end, "jj bookmark set on revision under cursor")
 
   map(keymaps.describe, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
+    local rev = cursor_rev()
     if not rev then
       return
     end
 
-    local result = jj_run({ "log", "-r", rev, "-T", "description", "--no-graph" })
+    local result = jj.run({ "log", "-r", rev, "-T", "description", "--no-graph" })
     local current_desc = result and result.stdout:gsub("\n$", "") or ""
 
     local desc_buf = vim.api.nvim_create_buf(false, true)
@@ -277,7 +262,7 @@ function M.setup_keymaps(buf, keymaps)
       buffer = desc_buf,
       callback = function()
         local desc = table.concat(vim.api.nvim_buf_get_lines(desc_buf, 0, -1, false), "\n")
-        if jj_run({ "describe", "-r", rev, "-m", desc }) then
+        if jj.run({ "describe", "-r", rev, "-m", desc }) then
           vim.bo[desc_buf].modified = false
           M.refresh(buf)
           vim.api.nvim_buf_delete(desc_buf, { force = false })

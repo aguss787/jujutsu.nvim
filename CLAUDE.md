@@ -44,6 +44,7 @@ Reload the Lua module after changes (without restarting Neovim):
 - Log buffers are scratch buffers (`vim.api.nvim_create_buf(false, true)`) with `bufhidden = "wipe"` and `modifiable = false` except during refresh
 - Buffer-local keymaps use `{ buffer = buf }` — never set global keymaps from within feature functions
 - `refresh_log_buf(buf)` pattern: temporarily set `modifiable = true`, update lines, set back to `false`
+- **Do not duplicate code.** Extract repeated logic into constants, helpers, or shared functions. If you find yourself copy-pasting, refactor instead.
 
 ## Testing
 
