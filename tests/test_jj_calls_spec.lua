@@ -195,6 +195,23 @@ describe("jj operation calls", function()
     assert.is_true(was_called(calls, { "jj", "bookmark", "move", "--to", "rev00001", "-B", "--from", "rev00002" }))
   end)
 
+  it("duplicate calls jj duplicate --onto with cursor revision onto marked destination", function()
+    on_line(buf, 2, get_cb(buf, "m")) -- mark rev00002 as destination
+    on_line(buf, 1, get_cb(buf, "p")) -- duplicate rev00001 onto rev00002
+    assert.is_true(was_called(calls, { "jj", "duplicate", "rev00001", "--onto", "rev00002" }))
+  end)
+
+  it("duplicate_pick calls jj duplicate with chosen destination mode", function()
+    local orig_select = vim.ui.select
+    vim.ui.select = function(_items, _opts, on_choice)
+      on_choice(_items[2]) -- pick second option (--insert-after)
+    end
+    on_line(buf, 2, get_cb(buf, "m")) -- mark rev00002 as destination
+    on_line(buf, 1, get_cb(buf, "P")) -- duplicate rev00001
+    vim.ui.select = orig_select
+    assert.is_true(was_called(calls, { "jj", "duplicate", "rev00001", "--insert-after", "rev00002" }))
+  end)
+
   it("git_fetch calls jj git fetch", function()
     on_line(buf, 1, get_cb(buf, "gf"))
     assert.is_true(was_called(calls, { "jj", "git", "fetch" }))

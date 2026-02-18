@@ -12,6 +12,8 @@ local log_buffer = require("jujutsu.log_buffer")
 ---@field rebase_pick string|false Key to rebase with source/destination mode picker
 ---@field undo string|false Key to undo the last operation
 ---@field describe string|false Key to set the revision description
+---@field duplicate string|false Key to duplicate revision(s)
+---@field duplicate_pick string|false Key to duplicate with destination mode picker
 ---@field refresh string|false Key to refresh the log buffer
 ---@field bookmark_set string|false Key to set a bookmark on the revision under cursor
 ---@field bookmark_delete string|false Key to delete a bookmark on the revision under cursor
@@ -37,6 +39,8 @@ local defaults = {
     rebase_pick = "R",
     undo = "u",
     describe = "d",
+    duplicate = "p",
+    duplicate_pick = "P",
     refresh = "<C-r>",
     bookmark_set = "bs",
     bookmark_delete = "bd",

@@ -50,6 +50,8 @@ Open the log buffer:
 | `gf`   | `jj git fetch`                                      |
 | `gp`   | `jj git push`                                       |
 | `d`    | Edit revision description                           |
+| `p`    | `jj duplicate --onto` marked destination(s)         |
+| `P`    | `jj duplicate` with destination mode picker         |
 | `<C-r>` | Refresh the log buffer                             |
 
 ### Marks
@@ -94,6 +96,8 @@ require("jujutsu").setup({
     git_fetch   = "gf",
     git_push    = "gp",
     describe    = "d",
+    duplicate   = "p",
+    duplicate_pick = "P",
     refresh     = "<C-r>",
   },
 })

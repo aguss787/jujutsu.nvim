@@ -64,6 +64,12 @@ local dest_modes = {
   { flag = "--after", label = "--after  insert after destination" },
 }
 
+local dup_dest_modes = {
+  { flag = "--onto", label = "--onto          duplicate onto destination" },
+  { flag = "--insert-after", label = "--insert-after  insert after destination" },
+  { flag = "--insert-before", label = "--insert-before insert before destination" },
+}
+
 ---Run jj rebase with the given source and destination flags
 ---@param buf integer
 ---@param rev string
@@ -302,6 +308,48 @@ function M.setup_keymaps(buf, keymaps)
   map(keymaps.bookmark_move_backwards, function()
     bookmark_move(true)
   end, "jj bookmark move --allow-backwards from marked revision(s) to cursor revision")
+
+  local function run_duplicate(rev, dest_flag)
+    local dests = vim.tbl_keys(marked_revs)
+    if #dests == 0 then
+      vim.notify("jj duplicate: mark the destination revision(s) first", vim.log.levels.ERROR)
+      return
+    end
+    local cmd = { "duplicate", rev }
+    for _, dest in ipairs(dests) do
+      vim.list_extend(cmd, { dest_flag, dest })
+    end
+    if jj.run(cmd) then
+      marked_revs = {}
+      M.refresh(buf)
+    end
+  end
+
+  map(keymaps.duplicate, function()
+    local rev = cursor_rev()
+    if not rev then
+      return
+    end
+    run_duplicate(rev, "--onto")
+  end, "jj duplicate revision onto marked destination(s)")
+
+  map(keymaps.duplicate_pick, function()
+    local rev = cursor_rev()
+    if not rev then
+      return
+    end
+    vim.ui.select(dup_dest_modes, {
+      prompt = "Destination mode:",
+      format_item = function(item)
+        return item.label
+      end,
+    }, function(mode)
+      if not mode then
+        return
+      end
+      run_duplicate(rev, mode.flag)
+    end)
+  end, "jj duplicate with destination mode picker")
 
   map(keymaps.describe, function()
     local rev = cursor_rev()
