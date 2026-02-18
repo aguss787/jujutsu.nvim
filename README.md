@@ -100,7 +100,8 @@ Opens a selection menu to choose the destination mode:
 
 | Key | Action                                                    |
 |-----|-----------------------------------------------------------|
-| `t` | `jj bookmark track` the bookmark under cursor (`@origin`) |
+| `d` | `jj bookmark delete` the bookmark under cursor              |
+| `t` | `jj bookmark track` the bookmark under cursor (`@origin`)   |
 | `T` | `jj bookmark untrack` the bookmark under cursor (`@origin`) |
 
 ## Configuration
@@ -145,6 +146,7 @@ require("jujutsu").setup({
       refresh     = "<C-r>",
     },
     bookmark = {
+      delete      = "d",
       track       = "t",
       untrack     = "T",
       goto_log    = "gl",

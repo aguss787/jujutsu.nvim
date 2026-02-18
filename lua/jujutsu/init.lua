@@ -29,6 +29,7 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@field refresh string|false Key to refresh the buffer
 
 ---@class JujutsuBookmarkKeymaps
+---@field delete string|false Key to delete a bookmark
 ---@field track string|false Key to track a bookmark
 ---@field untrack string|false Key to untrack a bookmark
 ---@field goto_log string|false Key to switch to the log buffer
@@ -73,6 +74,7 @@ local defaults = {
       refresh = "<C-r>",
     },
     bookmark = {
+      delete = "d",
       track = "t",
       untrack = "T",
       goto_log = "gl",

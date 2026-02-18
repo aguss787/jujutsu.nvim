@@ -107,6 +107,7 @@ Opens a selection menu to choose the destination mode:
 ==============================================================================
 BOOKMARK BUFFER KEYMAPS                             *jujutsu-bookmark-keymaps*
 
+  `d`       `jj bookmark delete` the bookmark under cursor
   `t`       `jj bookmark track` the bookmark under cursor (`@origin`)
   `T`       `jj bookmark untrack` the bookmark under cursor (`@origin`)
 
@@ -197,6 +198,7 @@ keymaps ~
     `refresh`                 `"<C-r>"`
 
   Bookmark keymaps (defaults): ~
+    `delete`                  `"d"`
     `track`                   `"t"`
     `untrack`                 `"T"`
     `goto_log`                `"gl"`
