@@ -20,9 +20,11 @@ local default_keymaps = {
   refresh = "<C-r>",
 }
 
--- Fake jj log lines whose revision IDs are extracted by the [@◉○]%s+(%w+) pattern
+-- Fake jj log lines whose revision IDs are extracted by the node pattern
 local LINE1 = "○  rev00001 a@b.com 2024-01-01 first commit"
 local LINE2 = "○  rev00002 a@b.com 2024-01-01 second commit"
+local LINE_IMMUTABLE = "◆  rev00003 a@b.com 2024-01-01 immutable commit"
+local LINE_BRANCHED = "│ ◆  rev00004 a@b.com 2024-01-01 branched commit"
 
 ---Find the callback registered for a normal-mode lhs on buf.
 ---@param buf integer
@@ -201,6 +203,24 @@ describe("jj operation calls", function()
     assert.is_true(desc_buf ~= -1)
     vim.api.nvim_exec_autocmds("BufWriteCmd", { buffer = desc_buf, modeline = false })
     assert.is_false(vim.api.nvim_buf_is_valid(desc_buf))
+  end)
+
+  it("can mark and operate on immutable (◆) revisions", function()
+    vim.bo[buf].modifiable = true
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { LINE1, LINE_IMMUTABLE })
+    vim.bo[buf].modifiable = false
+    on_line(buf, 2, get_cb(buf, "m")) -- mark immutable rev00003
+    on_line(buf, 1, get_cb(buf, "n")) -- new from marks
+    assert.is_true(was_called(calls, { "jj", "new", "rev00003" }))
+  end)
+
+  it("can mark and operate on branched revisions with graph prefix", function()
+    vim.bo[buf].modifiable = true
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { LINE1, LINE_BRANCHED })
+    vim.bo[buf].modifiable = false
+    on_line(buf, 2, get_cb(buf, "m")) -- mark branched rev00004
+    on_line(buf, 1, get_cb(buf, "n")) -- new from marks
+    assert.is_true(was_called(calls, { "jj", "new", "rev00004" }))
   end)
 
   it("clear_marks removes marks so next operation uses cursor revision", function()

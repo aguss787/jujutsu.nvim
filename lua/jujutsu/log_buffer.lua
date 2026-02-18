@@ -23,7 +23,7 @@ end
 local function apply_mark_highlights(buf)
   vim.api.nvim_buf_clear_namespace(buf, marks_ns, 0, -1)
   for i, line in ipairs(vim.api.nvim_buf_get_lines(buf, 0, -1, false)) do
-    local rev = line:match("[@◉○]%s+(%w+)")
+    local rev = line:match("[@◉○◆]%s+(%w+)")
     if rev and marked_revs[rev] then
       vim.api.nvim_buf_set_extmark(buf, marks_ns, i - 1, 0, { line_hl_group = "Visual" })
     end
@@ -37,7 +37,7 @@ local function resolve_revs()
   if #revs > 0 then
     return revs
   end
-  local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+  local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
   if rev then
     return { rev }
   end
@@ -73,7 +73,7 @@ function M.setup_keymaps(buf, keymaps)
   end
 
   map(keymaps.edit, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
     if not rev then
       return
     end
@@ -83,7 +83,7 @@ function M.setup_keymaps(buf, keymaps)
   end, "jj edit revision under cursor")
 
   map(keymaps.mark, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
     if not rev then
       return
     end
@@ -119,7 +119,7 @@ function M.setup_keymaps(buf, keymaps)
   end, "jj abandon revision(s)")
 
   map(keymaps.squash, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
     if not rev then
       return
     end
@@ -167,7 +167,7 @@ function M.setup_keymaps(buf, keymaps)
   end
 
   map(keymaps.rebase, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
     if not rev then
       return
     end
@@ -175,7 +175,7 @@ function M.setup_keymaps(buf, keymaps)
   end, "jj rebase -s revision onto marked destination(s)")
 
   map(keymaps.rebase_pick, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
     if not rev then
       return
     end
@@ -243,7 +243,7 @@ function M.setup_keymaps(buf, keymaps)
   end, "Refresh the log buffer")
 
   map(keymaps.bookmark_set, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
     if not rev then
       return
     end
@@ -258,7 +258,7 @@ function M.setup_keymaps(buf, keymaps)
   end, "jj bookmark set on revision under cursor")
 
   map(keymaps.describe, function()
-    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+    local rev = vim.api.nvim_get_current_line():match("[@◉○◆]%s+(%w+)")
     if not rev then
       return
     end
