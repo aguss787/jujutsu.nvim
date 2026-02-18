@@ -5,13 +5,13 @@ vim.g.loaded_jujutsu = 1
 
 vim.api.nvim_create_user_command("Jj", function(args)
   local subcmd = args.args
-  if subcmd == "log" then
+  if subcmd == "" or subcmd == "log" then
     require("jujutsu").log()
   else
     vim.notify("jujutsu: unknown command '" .. subcmd .. "'", vim.log.levels.ERROR)
   end
 end, {
-  nargs = 1,
+  nargs = "?",
   desc = "Jujutsu commands",
   complete = function()
     return { "log" }
