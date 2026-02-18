@@ -25,6 +25,8 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@field git_fetch string|false Key to run jj git fetch
 ---@field git_push string|false Key to run jj git push -r on revision(s)
 ---@field git_push_all string|false Key to run jj git push --all --deleted
+---@field goto_log string|false Key to switch to the log buffer
+---@field goto_bookmark string|false Key to switch to the bookmark buffer
 
 ---@class JujutsuConfig
 ---@field keymaps JujutsuKeymaps
@@ -55,6 +57,8 @@ local defaults = {
     git_fetch = "gf",
     git_push = "gp",
     git_push_all = "gP",
+    goto_log = "gl",
+    goto_bookmark = "gb",
   },
   split = "vertical",
 }

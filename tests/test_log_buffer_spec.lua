@@ -35,6 +35,8 @@ describe("setup_keymaps", function()
     assert.truthy(lhs_set["a"])
     assert.truthy(lhs_set["u"])
     assert.truthy(lhs_set["d"])
+    assert.truthy(lhs_set["gl"])
+    assert.truthy(lhs_set["gb"])
   end)
 
   it("does not leak keymaps into global scope", function()

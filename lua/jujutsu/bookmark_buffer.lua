@@ -24,6 +24,20 @@ end
 ---@param buf integer
 ---@param keymaps table<string, string|false>
 function M.setup_keymaps(buf, keymaps)
+  local function map(key, fn, desc)
+    if key ~= false then
+      vim.keymap.set("n", key, fn, { buffer = buf, desc = desc })
+    end
+  end
+
+  map(keymaps.goto_log, function()
+    require("jujutsu").log()
+  end, "Switch to log buffer")
+
+  map(keymaps.goto_bookmark, function()
+    require("jujutsu").bookmark()
+  end, "Switch to bookmark buffer")
+
   if keymaps.refresh and keymaps.refresh ~= false then
     vim.keymap.set("n", keymaps.refresh, function()
       if M.refresh(buf) then

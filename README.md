@@ -63,7 +63,9 @@ The log and bookmark buffers share the same window — opening one replaces the 
 | `d`    | Edit revision description                           |
 | `p`    | `jj duplicate --onto` marked destination(s)         |
 | `P`    | `jj duplicate` with destination mode picker         |
-| `<C-r>` | Refresh the log buffer                             |
+| `gl`   | Switch to log buffer                                |
+| `gb`   | Switch to bookmark buffer                           |
+| `<C-r>` | Refresh the buffer                                 |
 
 ### Marks
 
@@ -123,6 +125,8 @@ require("jujutsu").setup({
     describe    = "d",
     duplicate   = "p",
     duplicate_pick = "P",
+    goto_log    = "gl",
+    goto_bookmark = "gb",
     refresh     = "<C-r>",
   },
 })

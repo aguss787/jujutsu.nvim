@@ -388,6 +388,14 @@ function M.setup_keymaps(buf, keymaps)
     end)
   end, "jj duplicate with destination mode picker")
 
+  map(keymaps.goto_log, function()
+    require("jujutsu").log()
+  end, "Switch to log buffer")
+
+  map(keymaps.goto_bookmark, function()
+    require("jujutsu").bookmark()
+  end, "Switch to bookmark buffer")
+
   map(keymaps.describe, function()
     local rev = cursor_rev()
     if not rev then
