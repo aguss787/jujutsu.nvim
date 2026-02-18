@@ -20,7 +20,8 @@ local log_buffer = require("jujutsu.log_buffer")
 ---@field bookmark_move string|false Key to move bookmarks from marked revision(s) to cursor revision
 ---@field bookmark_move_backwards string|false Key to move bookmarks backwards from marked revision(s) to cursor revision
 ---@field git_fetch string|false Key to run jj git fetch
----@field git_push string|false Key to run jj git push
+---@field git_push string|false Key to run jj git push -r on revision(s)
+---@field git_push_all string|false Key to run jj git push --all --deleted
 
 ---@class JujutsuConfig
 ---@field keymaps JujutsuKeymaps
@@ -48,6 +49,7 @@ local defaults = {
     bookmark_move_backwards = "bM",
     git_fetch = "gf",
     git_push = "gp",
+    git_push_all = "gP",
   },
   split = "vertical",
 }

@@ -222,10 +222,25 @@ function M.setup_keymaps(buf, keymaps)
   end, "jj git fetch")
 
   map(keymaps.git_push, function()
-    jj.run_async("git_push", "pushing...", { "git", "push" }, function()
+    local revs = resolve_revs()
+    if not revs then
+      return
+    end
+    local args = { "git", "push" }
+    for _, rev in ipairs(revs) do
+      vim.list_extend(args, { "-r", rev })
+    end
+    jj.run_async("git_push", "pushing...", args, function()
+      marked_revs = {}
       M.refresh(buf)
     end)
-  end, "jj git push")
+  end, "jj git push revision(s)")
+
+  map(keymaps.git_push_all, function()
+    jj.run_async("git_push_all", "pushing all...", { "git", "push", "--all", "--deleted" }, function()
+      M.refresh(buf)
+    end)
+  end, "jj git push --all --deleted")
 
   map(keymaps.refresh, function()
     if M.refresh(buf) then

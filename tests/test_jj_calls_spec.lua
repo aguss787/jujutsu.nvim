@@ -217,9 +217,30 @@ describe("jj operation calls", function()
     assert.is_true(was_called(calls, { "jj", "git", "fetch" }))
   end)
 
-  it("git_push calls jj git push", function()
+  it("git_push calls jj git push -r with cursor revision", function()
     on_line(buf, 1, get_cb(buf, "gp"))
-    assert.is_true(was_called(calls, { "jj", "git", "push" }))
+    assert.is_true(was_called(calls, { "jj", "git", "push", "-r", "rev00001" }))
+  end)
+
+  it("git_push calls jj git push -r with all marked revisions", function()
+    on_line(buf, 1, get_cb(buf, "m")) -- mark rev00001
+    on_line(buf, 2, get_cb(buf, "m")) -- mark rev00002
+    on_line(buf, 1, get_cb(buf, "gp"))
+    local found = false
+    for _, call in ipairs(calls) do
+      if call[1] == "jj" and call[2] == "git" and call[3] == "push" then
+        if vim.tbl_contains(call, "rev00001") and vim.tbl_contains(call, "rev00002") then
+          found = true
+          break
+        end
+      end
+    end
+    assert.is_true(found)
+  end)
+
+  it("git_push_all calls jj git push --all --deleted", function()
+    on_line(buf, 1, get_cb(buf, "gP"))
+    assert.is_true(was_called(calls, { "jj", "git", "push", "--all", "--deleted" }))
   end)
 
   it("describe buffer is closed after saving", function()

@@ -48,7 +48,8 @@ Open the log buffer:
 | `bm`   | `jj bookmark move` from marked rev(s) to cursor rev |
 | `bM`   | `jj bookmark move -B` (allow backwards/sideways)    |
 | `gf`   | `jj git fetch`                                      |
-| `gp`   | `jj git push`                                       |
+| `gp`   | `jj git push -r` revision(s)                        |
+| `gP`   | `jj git push --all --deleted`                       |
 | `d`    | Edit revision description                           |
 | `p`    | `jj duplicate --onto` marked destination(s)         |
 | `P`    | `jj duplicate` with destination mode picker         |
@@ -106,6 +107,7 @@ require("jujutsu").setup({
     bookmark_move_backwards = "bM",
     git_fetch   = "gf",
     git_push    = "gp",
+    git_push_all = "gP",
     describe    = "d",
     duplicate   = "p",
     duplicate_pick = "P",
