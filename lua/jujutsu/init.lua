@@ -13,6 +13,7 @@ local log_buffer = require("jujutsu.log_buffer")
 ---@field undo string|false Key to undo the last operation
 ---@field describe string|false Key to set the revision description
 ---@field refresh string|false Key to refresh the log buffer
+---@field bookmark_set string|false Key to set a bookmark on the revision under cursor
 
 ---@class JujutsuConfig
 ---@field keymaps JujutsuKeymaps
@@ -31,6 +32,7 @@ local defaults = {
     undo = "u",
     describe = "d",
     refresh = "<C-r>",
+    bookmark_set = "bs",
   },
 }
 

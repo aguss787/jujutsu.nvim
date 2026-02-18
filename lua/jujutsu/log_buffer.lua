@@ -213,6 +213,21 @@ function M.setup_keymaps(buf, keymaps)
     end
   end, "Refresh the log buffer")
 
+  map(keymaps.bookmark_set, function()
+    local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
+    if not rev then
+      return
+    end
+    vim.ui.input({ prompt = "Bookmark name: " }, function(name)
+      if not name or name == "" then
+        return
+      end
+      if jj_run({ "bookmark", "set", name, "-r", rev }) then
+        M.refresh(buf)
+      end
+    end)
+  end, "jj bookmark set on revision under cursor")
+
   map(keymaps.describe, function()
     local rev = vim.api.nvim_get_current_line():match("[@◉○]%s+(%w+)")
     if not rev then

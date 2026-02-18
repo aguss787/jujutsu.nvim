@@ -13,6 +13,7 @@ local default_keymaps = {
   rebase = "r",
   rebase_pick = "R",
   undo = "u",
+  bookmark_set = "bs",
   describe = "d",
   refresh = "<C-r>",
 }

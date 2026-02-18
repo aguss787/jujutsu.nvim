@@ -13,6 +13,7 @@ local default_keymaps = {
   rebase = "r",
   rebase_pick = "R",
   undo = "u",
+  bookmark_set = "bs",
   describe = "d",
   refresh = "<C-r>",
 }
@@ -165,6 +166,16 @@ describe("jj operation calls", function()
   it("undo calls jj undo", function()
     on_line(buf, 1, get_cb(buf, "u"))
     assert.is_true(was_called(calls, { "jj", "undo" }))
+  end)
+
+  it("bookmark_set calls jj bookmark set with input name and cursor revision", function()
+    local orig_input = vim.ui.input
+    vim.ui.input = function(_opts, on_confirm)
+      on_confirm("my-bookmark")
+    end
+    on_line(buf, 1, get_cb(buf, "bs"))
+    vim.ui.input = orig_input
+    assert.is_true(was_called(calls, { "jj", "bookmark", "set", "my-bookmark", "-r", "rev00001" }))
   end)
 
   it("describe buffer is closed after saving", function()
