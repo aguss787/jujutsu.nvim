@@ -35,6 +35,16 @@ describe("bookmark refresh", function()
     assert.is_false(ok)
   end)
 
+  it("registers track and untrack keymaps", function()
+    reload().setup_keymaps(buf, default_keymaps)
+    local lhs_set = {}
+    for _, km in ipairs(vim.api.nvim_buf_get_keymap(buf, "n")) do
+      lhs_set[km.lhs] = true
+    end
+    assert.truthy(lhs_set["t"])
+    assert.truthy(lhs_set["T"])
+  end)
+
   if vim.fn.executable("jj") == 1 then
     it("populates buffer with jj bookmark list output", function()
       local ok = reload().refresh(buf)
@@ -48,4 +58,93 @@ describe("bookmark refresh", function()
       assert.is_false(vim.bo[buf].modifiable)
     end)
   end
+end)
+
+-- track / untrack ---------------------------------------------------------------
+
+local BOOKMARK_LINE1 = "master: abc12345 some commit"
+local BOOKMARK_LINE2 = "feature: def67890 another commit"
+
+---Find the callback registered for a normal-mode lhs on buf.
+---@param buf integer
+---@param lhs string
+---@return function
+local function get_cb(buf, lhs)
+  for _, km in ipairs(vim.api.nvim_buf_get_keymap(buf, "n")) do
+    if km.lhs == lhs then
+      return km.callback
+    end
+  end
+  error("no keymap '" .. lhs .. "' on buf " .. buf)
+end
+
+---@param calls table[]
+---@param expected string[]
+---@return boolean
+local function was_called(calls, expected)
+  for _, call in ipairs(calls) do
+    if #call == #expected then
+      local match = true
+      for i, v in ipairs(expected) do
+        if call[i] ~= v then
+          match = false
+          break
+        end
+      end
+      if match then
+        return true
+      end
+    end
+  end
+  return false
+end
+
+describe("bookmark buffer operations", function()
+  local buf, calls, orig_system
+
+  before_each(function()
+    calls = {}
+    orig_system = vim.system
+    vim.system = function(cmd, _opts, on_exit)
+      table.insert(calls, vim.deepcopy(cmd))
+      local stdout = ""
+      if cmd[2] == "bookmark" and cmd[3] == "list" then
+        stdout = BOOKMARK_LINE1 .. "\n" .. BOOKMARK_LINE2 .. "\n"
+      end
+      local result = { code = 0, stdout = stdout, stderr = "" }
+      if on_exit then
+        on_exit(result)
+        return
+      end
+      return { wait = function() return result end }
+    end
+
+    buf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { BOOKMARK_LINE1, BOOKMARK_LINE2 })
+    vim.bo[buf].modifiable = false
+    reload().setup_keymaps(buf, default_keymaps)
+  end)
+
+  after_each(function()
+    vim.system = orig_system
+    if vim.api.nvim_buf_is_valid(buf) then
+      vim.api.nvim_buf_delete(buf, { force = true })
+    end
+  end)
+
+  it("track calls jj bookmark track with @origin on cursor bookmark", function()
+    vim.api.nvim_buf_call(buf, function()
+      vim.api.nvim_win_set_cursor(0, { 1, 0 })
+      get_cb(buf, "t")()
+    end)
+    assert.is_true(was_called(calls, { "jj", "bookmark", "track", "master@origin" }))
+  end)
+
+  it("untrack calls jj bookmark untrack with @origin on cursor bookmark", function()
+    vim.api.nvim_buf_call(buf, function()
+      vim.api.nvim_win_set_cursor(0, { 2, 0 })
+      get_cb(buf, "T")()
+    end)
+    assert.is_true(was_called(calls, { "jj", "bookmark", "untrack", "feature@origin" }))
+  end)
 end)

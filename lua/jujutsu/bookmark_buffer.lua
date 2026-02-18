@@ -2,6 +2,12 @@ local M = {}
 
 local jj = require("jujutsu.jj")
 
+---Extract the bookmark name from the current line, or nil if none
+---@return string?
+local function cursor_bookmark()
+  return vim.api.nvim_get_current_line():match("^(%S+):")
+end
+
 ---Fetch `jj bookmark list` output and replace the contents of buf
 ---@param buf integer
 ---@return boolean success
@@ -37,6 +43,24 @@ function M.setup_keymaps(buf, keymaps)
   map(keymaps.goto_bookmark, function()
     require("jujutsu").bookmark()
   end, "Switch to bookmark buffer")
+
+  local function track_action(subcmd)
+    local name = cursor_bookmark()
+    if not name then
+      return
+    end
+    if jj.run({ "bookmark", subcmd, name .. "@origin" }) then
+      M.refresh(buf)
+    end
+  end
+
+  map(keymaps.track, function()
+    track_action("track")
+  end, "jj bookmark track")
+
+  map(keymaps.untrack, function()
+    track_action("untrack")
+  end, "jj bookmark untrack")
 
   if keymaps.refresh and keymaps.refresh ~= false then
     vim.keymap.set("n", keymaps.refresh, function()

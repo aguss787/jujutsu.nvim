@@ -38,6 +38,16 @@ Open the bookmark list buffer:
 
 The log and bookmark buffers share the same window — opening one replaces the other in the same split.
 
+## Shared Keymaps
+
+These keymaps are available in both the log and bookmark buffers:
+
+| Key    | Action                     |
+|--------|----------------------------|
+| `gl`   | Switch to log buffer       |
+| `gb`   | Switch to bookmark buffer  |
+| `<C-r>` | Refresh the buffer        |
+
 ## Log Buffer Keymaps
 
 | Key    | Action                                              |
@@ -63,10 +73,6 @@ The log and bookmark buffers share the same window — opening one replaces the 
 | `d`    | Edit revision description                           |
 | `p`    | `jj duplicate --onto` marked destination(s)         |
 | `P`    | `jj duplicate` with destination mode picker         |
-| `gl`   | Switch to log buffer                                |
-| `gb`   | Switch to bookmark buffer                           |
-| `<C-r>` | Refresh the buffer                                 |
-
 ### Marks
 
 Press `m` to mark revisions. Marks are used differently depending on the operation:
@@ -88,6 +94,13 @@ Opens two selection menus to choose the rebase mode:
 Opens a selection menu to choose the destination mode:
 
 - `--onto` (duplicate onto destination), `--insert-after` (insert after), `--insert-before` (insert before)
+
+## Bookmark Buffer Keymaps
+
+| Key | Action                                                    |
+|-----|-----------------------------------------------------------|
+| `t` | `jj bookmark track` the bookmark under cursor (`@origin`) |
+| `T` | `jj bookmark untrack` the bookmark under cursor (`@origin`) |
 
 ## Configuration
 
@@ -127,6 +140,8 @@ require("jujutsu").setup({
     duplicate_pick = "P",
     goto_log    = "gl",
     goto_bookmark = "gb",
+    track       = "t",
+    untrack     = "T",
     refresh     = "<C-r>",
   },
 })
