@@ -72,6 +72,12 @@ function M.setup_keymaps(buf, keymaps)
     track_action("untrack")
   end, "jj bookmark untrack")
 
+  map(keymaps.undo, function()
+    if jj.run({ "undo" }) then
+      M.refresh(buf)
+    end
+  end, "jj undo")
+
   if keymaps.refresh and keymaps.refresh ~= false then
     vim.keymap.set("n", keymaps.refresh, function()
       if M.refresh(buf) then
