@@ -3,6 +3,7 @@
 local function reload()
   package.loaded["jujutsu"] = nil
   package.loaded["jujutsu.log_buffer"] = nil
+  package.loaded["jujutsu.bookmark_buffer"] = nil
   return require("jujutsu")
 end
 
@@ -55,10 +56,14 @@ describe("log", function()
 
   before_each(function()
     orig_system = vim.system
-    vim.system = function(_cmd, _opts)
+    vim.system = function(cmd, _opts)
+      local stdout = "○  abc123 a@b.com 2024-01-01 test\n"
+      if cmd[2] == "bookmark" and cmd[3] == "list" then
+        stdout = "master: abc123 test\n"
+      end
       return {
         wait = function()
-          return { code = 0, stdout = "○  abc123 a@b.com 2024-01-01 test\n", stderr = "" }
+          return { code = 0, stdout = stdout, stderr = "" }
         end,
       }
     end
@@ -82,5 +87,28 @@ describe("log", function()
     jujutsu.setup({ split = "horizontal" })
     jujutsu.log()
     assert.equal("col", vim.fn.winlayout()[1])
+  end)
+
+  it("bookmark replaces log in the same window", function()
+    local jujutsu = reload()
+    jujutsu.setup()
+    jujutsu.log()
+    local win_count_after_log = #vim.api.nvim_list_wins()
+    jujutsu.bookmark()
+    assert.equal(win_count_after_log, #vim.api.nvim_list_wins())
+    -- current buffer should be the bookmark buffer
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    assert.truthy(lines[1]:find("master"))
+  end)
+
+  it("log replaces bookmark in the same window", function()
+    local jujutsu = reload()
+    jujutsu.setup()
+    jujutsu.bookmark()
+    local win_count_after_bookmark = #vim.api.nvim_list_wins()
+    jujutsu.log()
+    assert.equal(win_count_after_bookmark, #vim.api.nvim_list_wins())
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    assert.truthy(lines[1]:find("abc123"))
   end)
 end)

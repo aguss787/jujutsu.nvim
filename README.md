@@ -30,6 +30,14 @@ Open the log buffer:
 :Jj log
 ```
 
+Open the bookmark list buffer:
+
+```
+:Jj bookmark
+```
+
+The log and bookmark buffers share the same window — opening one replaces the other in the same split.
+
 ## Log Buffer Keymaps
 
 | Key    | Action                                              |

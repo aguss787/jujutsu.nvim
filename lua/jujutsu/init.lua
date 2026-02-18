@@ -1,5 +1,6 @@
 local M = {}
 local log_buffer = require("jujutsu.log_buffer")
+local bookmark_buffer = require("jujutsu.bookmark_buffer")
 
 ---@class JujutsuKeymaps
 ---@field edit string|false Key to edit the revision under cursor
@@ -69,25 +70,45 @@ end
 
 ---@type integer?
 local log_buf = nil
+---@type integer?
+local bookmark_buf = nil
 
 local function open_split()
   local cmd = M.config.split == "vertical" and "vsplit" or "split"
   vim.cmd(cmd)
 end
 
----Run `jj log` and show the output in a new scratch buffer, reusing it if it already exists
-M.log = function()
-  if log_buf and vim.api.nvim_buf_is_valid(log_buf) then
-    log_buffer.refresh(log_buf)
-    -- focus the existing window showing the buffer, or open a new split
+---Show target_buf in a window, reusing other_buf's window if visible
+---@param target_buf integer
+---@param other_buf integer?
+local function show_buf(target_buf, other_buf)
+  -- If the other buffer is visible, replace it in that window
+  if other_buf and vim.api.nvim_buf_is_valid(other_buf) then
     for _, win in ipairs(vim.api.nvim_list_wins()) do
-      if vim.api.nvim_win_get_buf(win) == log_buf then
+      if vim.api.nvim_win_get_buf(win) == other_buf then
+        vim.api.nvim_win_set_buf(win, target_buf)
         vim.api.nvim_set_current_win(win)
         return
       end
     end
-    open_split()
-    vim.api.nvim_win_set_buf(0, log_buf)
+  end
+  -- If target buffer is already visible, focus it
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_get_buf(win) == target_buf then
+      vim.api.nvim_set_current_win(win)
+      return
+    end
+  end
+  -- Otherwise open a new split
+  open_split()
+  vim.api.nvim_win_set_buf(0, target_buf)
+end
+
+---Run `jj log` and show the output in a new scratch buffer, reusing it if it already exists
+M.log = function()
+  if log_buf and vim.api.nvim_buf_is_valid(log_buf) then
+    log_buffer.refresh(log_buf)
+    show_buf(log_buf, bookmark_buf)
     return
   end
 
@@ -102,8 +123,29 @@ M.log = function()
   vim.bo[log_buf].filetype = "jjlog"
   log_buffer.setup_keymaps(log_buf, M.config.keymaps)
 
-  open_split()
-  vim.api.nvim_win_set_buf(0, log_buf)
+  show_buf(log_buf, bookmark_buf)
+end
+
+---Run `jj bookmark list` and show the output in a new scratch buffer, reusing it if it already exists
+M.bookmark = function()
+  if bookmark_buf and vim.api.nvim_buf_is_valid(bookmark_buf) then
+    bookmark_buffer.refresh(bookmark_buf)
+    show_buf(bookmark_buf, log_buf)
+    return
+  end
+
+  bookmark_buf = vim.api.nvim_create_buf(false, true)
+  vim.bo[bookmark_buf].bufhidden = "wipe"
+
+  if not bookmark_buffer.refresh(bookmark_buf) then
+    bookmark_buf = nil
+    return
+  end
+
+  vim.bo[bookmark_buf].filetype = "jjbookmark"
+  bookmark_buffer.setup_keymaps(bookmark_buf, M.config.keymaps)
+
+  show_buf(bookmark_buf, log_buf)
 end
 
 return M
