@@ -15,6 +15,7 @@ local log_buffer = require("jujutsu.log_buffer")
 ---@field refresh string|false Key to refresh the log buffer
 ---@field bookmark_set string|false Key to set a bookmark on the revision under cursor
 ---@field bookmark_delete string|false Key to delete a bookmark on the revision under cursor
+---@field bookmark_move string|false Key to move bookmarks from marked revision(s) to cursor revision
 ---@field git_fetch string|false Key to run jj git fetch
 ---@field git_push string|false Key to run jj git push
 
@@ -38,6 +39,7 @@ local defaults = {
     refresh = "<C-r>",
     bookmark_set = "bs",
     bookmark_delete = "bd",
+    bookmark_move = "bm",
     git_fetch = "gf",
     git_push = "gp",
   },

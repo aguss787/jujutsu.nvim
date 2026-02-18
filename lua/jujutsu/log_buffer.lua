@@ -272,6 +272,26 @@ function M.setup_keymaps(buf, keymaps)
     end
   end, "jj bookmark delete on revision under cursor")
 
+  map(keymaps.bookmark_move, function()
+    local rev = cursor_rev()
+    if not rev then
+      return
+    end
+    local sources = vim.tbl_keys(marked_revs)
+    if #sources == 0 then
+      vim.notify("jj bookmark move: mark the source revision(s) first", vim.log.levels.ERROR)
+      return
+    end
+    local cmd = { "bookmark", "move", "--to", rev }
+    for _, source in ipairs(sources) do
+      vim.list_extend(cmd, { "--from", source })
+    end
+    if jj.run(cmd) then
+      marked_revs = {}
+      M.refresh(buf)
+    end
+  end, "jj bookmark move from marked revision(s) to cursor revision")
+
   map(keymaps.describe, function()
     local rev = cursor_rev()
     if not rev then

@@ -45,6 +45,7 @@ Open the log buffer:
 | `u`    | `jj undo`                                           |
 | `bs`   | `jj bookmark set` on revision under cursor          |
 | `bd`   | `jj bookmark delete` on revision under cursor       |
+| `bm`   | `jj bookmark move` from marked rev(s) to cursor rev |
 | `gf`   | `jj git fetch`                                      |
 | `gp`   | `jj git push`                                       |
 | `d`    | Edit revision description                           |
@@ -87,6 +88,7 @@ require("jujutsu").setup({
     undo        = "u",
     bookmark_set = "bs",
     bookmark_delete = "bd",
+    bookmark_move = "bm",
     git_fetch   = "gf",
     git_push    = "gp",
     describe    = "d",
