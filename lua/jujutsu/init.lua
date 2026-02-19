@@ -49,6 +49,7 @@ local op_buffer = require("jujutsu.op_buffer")
 ---@field refresh string|false Key to refresh the buffer
 
 ---@class JujutsuOpKeymaps
+---@field restore string|false Key to restore to the operation under cursor
 ---@field undo string|false Key to undo the last operation
 ---@field quit string|false Key to close the buffer
 ---@field goto_log string|false Key to switch to the log buffer
@@ -115,6 +116,7 @@ local defaults = {
       refresh = "<C-r>",
     },
     op = {
+      restore = "<CR>",
       undo = "u",
       quit = "q",
       goto_log = "gl",

@@ -102,7 +102,7 @@ describe("log", function()
       if cmd[2] == "bookmark" and cmd[3] == "list" then
         stdout = "master: abc123 test\n"
       elseif cmd[2] == "op" and cmd[3] == "log" then
-        stdout = "abc12345 user@test.com 2024-01-01 some operation\n"
+        stdout = "@  abc12345 user@test.com 2024-01-01 some operation\n"
       end
       return {
         wait = function()

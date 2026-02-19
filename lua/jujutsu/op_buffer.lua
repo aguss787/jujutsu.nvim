@@ -3,6 +3,14 @@ local M = {}
 local jj = require("jujutsu.jj")
 local ansi = require("jujutsu.ansi")
 
+local OP_PATTERN = "[@○]%s+(%w+)"
+
+---Extract the operation ID from the current line, or nil if none
+---@return string?
+local function cursor_op()
+  return vim.api.nvim_get_current_line():match(OP_PATTERN)
+end
+
 ---Fetch `jj op log` output and replace the contents of buf
 ---@param buf integer
 ---@return boolean success
@@ -34,6 +42,16 @@ function M.setup_keymaps(buf, keymaps)
       vim.keymap.set("n", key, fn, { buffer = buf, desc = desc })
     end
   end
+
+  map(keymaps.restore, function()
+    local op = cursor_op()
+    if not op then
+      return
+    end
+    if jj.run({ "op", "restore", op }) then
+      M.refresh(buf)
+    end
+  end, "jj op restore operation under cursor")
 
   map(keymaps.undo, function()
     if jj.run({ "undo" }) then

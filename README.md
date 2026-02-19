@@ -121,9 +121,10 @@ Opens a selection menu to choose the destination mode:
 
 ## Op Buffer Keymaps
 
-| Key  | Action     |
-|------|------------|
-| `u`  | `jj undo`  |
+| Key    | Action                                         |
+|--------|------------------------------------------------|
+| `<CR>` | `jj op restore` the operation under cursor     |
+| `u`    | `jj undo`                                      |
 
 ## Configuration
 
@@ -186,6 +187,7 @@ require("jujutsu").setup({
       refresh                 = "<C-r>",
     },
     op = {
+      restore                 = "<CR>",
       undo                    = "u",
       quit                    = "q",
       goto_log                = "gl",

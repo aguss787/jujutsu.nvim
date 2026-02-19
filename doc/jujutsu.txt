@@ -125,6 +125,7 @@ BOOKMARK BUFFER KEYMAPS                             *jujutsu-bookmark-keymaps*
 ==============================================================================
 OP BUFFER KEYMAPS                                           *jujutsu-op-keymaps*
 
+  `<CR>`    `jj op restore` the operation under cursor
   `u`       `jj undo`
 
 ==============================================================================
@@ -259,6 +260,7 @@ keymaps ~
     `refresh`                 `"<C-r>"`
 
   Op keymaps (defaults): ~
+    `restore`                 `"<CR>"`
     `undo`                    `"u"`
     `quit`                    `"q"`
     `goto_log`                `"gl"`

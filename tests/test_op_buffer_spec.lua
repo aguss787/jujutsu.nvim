@@ -44,6 +44,7 @@ describe("op refresh", function()
     for _, km in ipairs(vim.api.nvim_buf_get_keymap(buf, "n")) do
       lhs_set[km.lhs] = true
     end
+    assert.truthy(lhs_set["<CR>"])
     assert.truthy(lhs_set["q"])
     assert.truthy(lhs_set["u"])
     assert.truthy(lhs_set["gl"])
@@ -78,7 +79,7 @@ describe("op buffer operations", function()
       table.insert(calls, vim.deepcopy(cmd))
       local stdout = ""
       if cmd[2] == "op" and cmd[3] == "log" then
-        stdout = "abc12345 user@test.com 2024-01-01 some operation\n"
+        stdout = "@  abc12345 user@test.com 2024-01-01 some operation\n"
       end
       local result = { code = 0, stdout = stdout, stderr = "" }
       if on_exit then
@@ -89,9 +90,11 @@ describe("op buffer operations", function()
     end
 
     buf = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "abc12345 user@test.com 2024-01-01 some operation" })
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "@  abc12345 user@test.com 2024-01-01 some operation" })
     vim.bo[buf].modifiable = false
     reload().setup_keymaps(buf, default_keymaps)
+    vim.api.nvim_set_current_buf(buf)
+    vim.api.nvim_win_set_cursor(0, { 1, 0 })
   end)
 
   after_each(function()
@@ -99,6 +102,11 @@ describe("op buffer operations", function()
     if vim.api.nvim_buf_is_valid(buf) then
       vim.api.nvim_buf_delete(buf, { force = true })
     end
+  end)
+
+  it("restore calls jj op restore with operation under cursor", function()
+    get_cb(buf, "<CR>")()
+    assert.is_true(was_called(calls, { "jj", "op", "restore", "abc12345" }))
   end)
 
   it("undo calls jj undo", function()
