@@ -388,6 +388,10 @@ function M.setup_keymaps(buf, keymaps)
     end)
   end, "jj duplicate with destination mode picker")
 
+  map(keymaps.quit, function()
+    vim.cmd("close")
+  end, "Close the buffer")
+
   map(keymaps.goto_log, function()
     require("jujutsu").log()
   end, "Switch to log buffer")

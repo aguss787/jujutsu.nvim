@@ -41,6 +41,7 @@ describe("bookmark refresh", function()
     for _, km in ipairs(vim.api.nvim_buf_get_keymap(buf, "n")) do
       lhs_set[km.lhs] = true
     end
+    assert.truthy(lhs_set["q"])
     assert.truthy(lhs_set["t"])
     assert.truthy(lhs_set["T"])
   end)

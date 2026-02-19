@@ -24,6 +24,7 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@field git_fetch string|false Key to run jj git fetch
 ---@field git_push string|false Key to run jj git push -r on revision(s)
 ---@field git_push_all string|false Key to run jj git push --all --deleted
+---@field quit string|false Key to close the buffer
 ---@field goto_log string|false Key to switch to the log buffer
 ---@field goto_bookmark string|false Key to switch to the bookmark buffer
 ---@field refresh string|false Key to refresh the buffer
@@ -39,6 +40,7 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@field git_push string|false Key to run jj git push -b on cursor bookmark
 ---@field git_push_all string|false Key to run jj git push --all --deleted
 ---@field undo string|false Key to undo the last operation
+---@field quit string|false Key to close the buffer
 ---@field goto_log string|false Key to switch to the log buffer
 ---@field goto_bookmark string|false Key to switch to the bookmark buffer
 ---@field refresh string|false Key to refresh the buffer
@@ -76,6 +78,7 @@ local defaults = {
       git_fetch = "gf",
       git_push = "gp",
       git_push_all = "gP",
+      quit = "q",
       goto_log = "gl",
       goto_bookmark = "gb",
       refresh = "<C-r>",
@@ -91,6 +94,7 @@ local defaults = {
       git_push = "gp",
       git_push_all = "gP",
       undo = "u",
+      quit = "q",
       goto_log = "gl",
       goto_bookmark = "gb",
       refresh = "<C-r>",

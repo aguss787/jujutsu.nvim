@@ -55,6 +55,7 @@ SHARED KEYMAPS                                         *jujutsu-shared-keymaps*
 
 These keymaps are available in both the log and bookmark buffers:
 
+  `q`       Close the buffer
   `gl`      Switch to log buffer
   `gb`      Switch to bookmark buffer
   `<C-r>`   Refresh the buffer
@@ -200,6 +201,7 @@ keymaps ~
     `git_fetch`               `"gf"`
     `git_push`                `"gp"`
     `git_push_all`            `"gP"`
+    `quit`                    `"q"`
     `goto_log`                `"gl"`
     `goto_bookmark`           `"gb"`
     `refresh`                 `"<C-r>"`
@@ -215,6 +217,7 @@ keymaps ~
     `git_push`                `"gp"`
     `git_push_all`            `"gP"`
     `undo`                    `"u"`
+    `quit`                    `"q"`
     `goto_log`                `"gl"`
     `goto_bookmark`           `"gb"`
     `refresh`                 `"<C-r>"`

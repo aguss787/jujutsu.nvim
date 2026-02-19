@@ -42,11 +42,12 @@ The log and bookmark buffers share the same window — opening one replaces the 
 
 These keymaps are available in both the log and bookmark buffers:
 
-| Key    | Action                     |
-|--------|----------------------------|
-| `gl`   | Switch to log buffer       |
-| `gb`   | Switch to bookmark buffer  |
-| `<C-r>` | Refresh the buffer        |
+| Key     | Action                     |
+|---------|----------------------------|
+| `q`     | Close the buffer           |
+| `gl`    | Switch to log buffer       |
+| `gb`    | Switch to bookmark buffer  |
+| `<C-r>` | Refresh the buffer         |
 
 ## Log Buffer Keymaps
 
@@ -148,6 +149,7 @@ require("jujutsu").setup({
       git_fetch               = "gf",
       git_push                = "gp",
       git_push_all            = "gP",
+      quit                    = "q",
       goto_log                = "gl",
       goto_bookmark           = "gb",
       refresh                 = "<C-r>",
@@ -163,6 +165,7 @@ require("jujutsu").setup({
       git_push                = "gp",
       git_push_all            = "gP",
       undo                    = "u",
+      quit                    = "q",
       goto_log                = "gl",
       goto_bookmark           = "gb",
       refresh                 = "<C-r>",
