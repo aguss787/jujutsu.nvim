@@ -174,6 +174,39 @@ require("jujutsu").setup({
 })
 ```
 
+### GPG Signing
+
+If you use GPG commit signing with jj, push operations may block waiting for
+a passphrase. Enable `cache_gpg` to have the plugin prompt for your
+passphrase (if not already cached in gpg-agent) before pushing:
+
+```lua
+require("jujutsu").setup({
+  cache_gpg = true,
+})
+```
+
+Recommended: configure jj to only sign on push instead of on every commit.
+This avoids repeated passphrase prompts during normal work and batches all
+signing into the push step:
+
+```toml
+# ~/.jjconfig.toml
+[signing]
+behavior = "drop"
+
+[git]
+sign-on-push = true
+```
+
+Requires `allow-loopback-pinentry` in `~/.gnupg/gpg-agent.conf`:
+
+```
+allow-loopback-pinentry
+```
+
+After adding the line, reload the agent: `gpgconf --kill gpg-agent`.
+
 Set a keymap to `false` to disable it:
 
 ```lua

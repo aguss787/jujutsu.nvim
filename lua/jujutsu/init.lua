@@ -52,6 +52,7 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@class JujutsuConfig
 ---@field keymaps JujutsuKeymaps
 ---@field split "vertical"|"horizontal" How to split the window when opening the log buffer
+---@field cache_gpg boolean Whether to pre-cache GPG passphrase before push operations
 
 ---@type JujutsuConfig
 local defaults = {
@@ -101,6 +102,7 @@ local defaults = {
     },
   },
   split = "vertical",
+  cache_gpg = false,
 }
 
 ---@type JujutsuConfig
@@ -110,6 +112,7 @@ M.config = {}
 ---@param opts? JujutsuConfig
 M.setup = function(opts)
   M.config = vim.tbl_deep_extend("force", defaults, opts or {})
+  require("jujutsu.jj").cache_gpg = M.config.cache_gpg
 end
 
 ---@type integer?

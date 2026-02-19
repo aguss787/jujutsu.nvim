@@ -162,6 +162,28 @@ split ~
   How to split the window when opening a buffer. `"vertical"` opens a
   side-by-side split, `"horizontal"` opens a top/bottom split.
 
+                                                       *jujutsu-cache-gpg*
+cache_gpg ~
+  Type: `boolean`
+  Default: `false`
+
+  When enabled, the plugin checks whether your GPG passphrase is cached in
+  gpg-agent before each push operation. If the passphrase is not cached, you
+  are prompted to enter it (characters are hidden). The passphrase is then
+  cached in gpg-agent via a loopback signing call before the push proceeds.
+
+  This prevents `jj git push` from blocking on an interactive GPG prompt
+  that cannot be handled inside an async `vim.system()` call.
+
+  Requires `gpg` in `$PATH` and `allow-loopback-pinentry` in
+  `~/.gnupg/gpg-agent.conf`. After adding the line, reload the agent with
+  `gpgconf --kill gpg-agent`. >lua
+
+    require("jujutsu").setup({
+      cache_gpg = true,
+    })
+<
+
                                                            *jujutsu-keymaps*
 keymaps ~
   Type: `table`

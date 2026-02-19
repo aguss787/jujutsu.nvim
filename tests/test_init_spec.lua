@@ -50,6 +50,25 @@ describe("setup", function()
       reload().setup()
     end)
   end)
+
+  it("defaults cache_gpg to false", function()
+    local jujutsu = reload()
+    jujutsu.setup()
+    assert.is_false(jujutsu.config.cache_gpg)
+  end)
+
+  it("allows enabling cache_gpg", function()
+    local jujutsu = reload()
+    jujutsu.setup({ cache_gpg = true })
+    assert.is_true(jujutsu.config.cache_gpg)
+  end)
+
+  it("propagates cache_gpg to jj module", function()
+    package.loaded["jujutsu.jj"] = nil
+    local jujutsu = reload()
+    jujutsu.setup({ cache_gpg = true })
+    assert.is_true(require("jujutsu.jj").cache_gpg)
+  end)
 end)
 
 describe("log", function()

@@ -306,3 +306,121 @@ describe("jj operation calls", function()
     assert.is_true(was_called(calls, { "jj", "new", "rev00001" }))
   end)
 end)
+
+describe("push_async with cache_gpg", function()
+  local jj_mod
+  local calls
+  local orig_system
+  local orig_schedule
+  local orig_inputsecret
+  local gpg_cached
+
+  before_each(function()
+    calls = {}
+    gpg_cached = false
+
+    orig_system = vim.system
+    orig_schedule = vim.schedule
+    orig_inputsecret = vim.fn.inputsecret
+
+    vim.schedule = function(fn)
+      fn()
+    end
+
+    vim.system = function(cmd, opts, on_exit)
+      table.insert(calls, { cmd = vim.deepcopy(cmd), opts = vim.deepcopy(opts) })
+
+      if cmd[1] == "gpg" then
+        local is_check = vim.tbl_contains(cmd, "error")
+        local result
+        if is_check then
+          result = { code = gpg_cached and 0 or 1, stdout = "", stderr = "" }
+        else
+          result = { code = 0, stdout = "", stderr = "" }
+        end
+        if on_exit then
+          on_exit(result)
+          return
+        end
+        return { wait = function()
+          return result
+        end }
+      end
+
+      local result = { code = 0, stdout = "", stderr = "" }
+      if on_exit then
+        on_exit(result)
+        return
+      end
+      return { wait = function()
+        return result
+      end }
+    end
+
+    package.loaded["jujutsu.jj"] = nil
+    package.loaded["jujutsu.progress"] = nil
+    jj_mod = require("jujutsu.jj")
+    jj_mod.cache_gpg = true
+  end)
+
+  after_each(function()
+    vim.system = orig_system
+    vim.schedule = orig_schedule
+    vim.fn.inputsecret = orig_inputsecret
+  end)
+
+  it("skips gpg prompt when passphrase is already cached", function()
+    gpg_cached = true
+    local success = false
+    jj_mod.push_async("test", "testing...", { "git", "push", "--all" }, function()
+      success = true
+    end)
+    assert.is_true(success)
+    local loopback_calls = vim.tbl_filter(function(c)
+      return c.cmd[1] == "gpg" and vim.tbl_contains(c.cmd, "loopback")
+    end, calls)
+    assert.equal(0, #loopback_calls)
+  end)
+
+  it("prompts and caches passphrase when not cached", function()
+    gpg_cached = false
+    vim.fn.inputsecret = function()
+      return "my-secret"
+    end
+    local success = false
+    jj_mod.push_async("test", "testing...", { "git", "push", "--all" }, function()
+      success = true
+    end)
+    assert.is_true(success)
+    local loopback_calls = vim.tbl_filter(function(c)
+      return c.cmd[1] == "gpg" and vim.tbl_contains(c.cmd, "loopback")
+    end, calls)
+    assert.equal(1, #loopback_calls)
+    assert.equal("my-secret", loopback_calls[1].opts.stdin)
+  end)
+
+  it("aborts push when user provides empty passphrase", function()
+    gpg_cached = false
+    vim.fn.inputsecret = function()
+      return ""
+    end
+    local success = false
+    jj_mod.push_async("test", "testing...", { "git", "push", "--all" }, function()
+      success = true
+    end)
+    assert.is_false(success)
+  end)
+
+  it("delegates directly to run_async when cache_gpg is false", function()
+    jj_mod.cache_gpg = false
+    local success = false
+    jj_mod.push_async("test", "testing...", { "git", "push", "--all" }, function()
+      success = true
+    end)
+    assert.is_true(success)
+    local gpg_calls = vim.tbl_filter(function(c)
+      return c.cmd[1] == "gpg"
+    end, calls)
+    assert.equal(0, #gpg_calls)
+  end)
+end)

@@ -122,7 +122,7 @@ function M.setup_keymaps(buf, keymaps)
     if not name then
       return
     end
-    jj.run_async("git_push", "pushing...", { "git", "push", "-b", name }, function()
+    jj.push_async("git_push", "pushing...", { "git", "push", "-b", name }, function()
       M.refresh(buf)
     end)
   end, "jj git push -b bookmark under cursor")
@@ -134,7 +134,7 @@ function M.setup_keymaps(buf, keymaps)
   end, "jj git fetch")
 
   map(keymaps.git_push_all, function()
-    jj.run_async("git_push_all", "pushing all...", { "git", "push", "--all", "--deleted" }, function()
+    jj.push_async("git_push_all", "pushing all...", { "git", "push", "--all", "--deleted" }, function()
       M.refresh(buf)
     end)
   end, "jj git push --all --deleted")
