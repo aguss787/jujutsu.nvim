@@ -164,13 +164,18 @@ describe("jj operation calls", function()
   end)
 
   it("bookmark_track calls jj bookmark track with @origin appended when no @", function()
+    local notified
+    local orig_notify = vim.notify
+    vim.notify = function(msg, level) notified = { msg = msg, level = level } end
     local orig_input = vim.ui.input
     vim.ui.input = function(_opts, on_confirm)
       on_confirm("main")
     end
     get_cb(buf, "bt")()
     vim.ui.input = orig_input
+    vim.notify = orig_notify
     assert.is_true(was_called(calls, { "jj", "bookmark", "track", "main@origin" }))
+    assert.equal("jj bookmark track: main@origin", notified.msg)
   end)
 
   it("bookmark_track preserves explicit @remote", function()
@@ -184,13 +189,18 @@ describe("jj operation calls", function()
   end)
 
   it("bookmark_untrack calls jj bookmark untrack with @origin appended when no @", function()
+    local notified
+    local orig_notify = vim.notify
+    vim.notify = function(msg, level) notified = { msg = msg, level = level } end
     local orig_input = vim.ui.input
     vim.ui.input = function(_opts, on_confirm)
       on_confirm("main")
     end
     get_cb(buf, "bT")()
     vim.ui.input = orig_input
+    vim.notify = orig_notify
     assert.is_true(was_called(calls, { "jj", "bookmark", "untrack", "main@origin" }))
+    assert.equal("jj bookmark untrack: main@origin", notified.msg)
   end)
 
   it("duplicate calls jj duplicate --onto with cursor revision onto marked destination", function()

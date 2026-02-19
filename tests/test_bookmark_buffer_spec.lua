@@ -139,19 +139,29 @@ describe("bookmark buffer operations", function()
   end)
 
   it("track calls jj bookmark track with @origin on cursor bookmark", function()
+    local notified
+    local orig_notify = vim.notify
+    vim.notify = function(msg, level) notified = { msg = msg, level = level } end
     vim.api.nvim_buf_call(buf, function()
       vim.api.nvim_win_set_cursor(0, { 1, 0 })
       get_cb(buf, "t")()
     end)
+    vim.notify = orig_notify
     assert.is_true(was_called(calls, { "jj", "bookmark", "track", "master@origin" }))
+    assert.equal("jj bookmark track: master@origin", notified.msg)
   end)
 
   it("untrack calls jj bookmark untrack with @origin on cursor bookmark", function()
+    local notified
+    local orig_notify = vim.notify
+    vim.notify = function(msg, level) notified = { msg = msg, level = level } end
     vim.api.nvim_buf_call(buf, function()
       vim.api.nvim_win_set_cursor(0, { 2, 0 })
       get_cb(buf, "T")()
     end)
+    vim.notify = orig_notify
     assert.is_true(was_called(calls, { "jj", "bookmark", "untrack", "feature@origin" }))
+    assert.equal("jj bookmark untrack: feature@origin", notified.msg)
   end)
 
   it("track preserves existing @remote in bookmark name", function()

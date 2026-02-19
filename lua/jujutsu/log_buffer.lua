@@ -334,7 +334,9 @@ function M.setup_keymaps(buf, keymaps)
       if not name or name == "" then
         return
       end
-      if jj.run({ "bookmark", subcmd, jj.with_remote(name) }) then
+      local target = jj.with_remote(name)
+      if jj.run({ "bookmark", subcmd, target }) then
+        vim.notify("jj bookmark " .. subcmd .. ": " .. target, vim.log.levels.INFO)
         M.refresh(buf)
       end
     end)
