@@ -104,6 +104,9 @@ Opens a selection menu to choose the destination mode:
 | `t` | `jj bookmark track` the bookmark under cursor (`@origin`)   |
 | `T` | `jj bookmark untrack` the bookmark under cursor (`@origin`) |
 | `r` | Toggle between local only and all remote bookmarks           |
+| `gf`| `jj git fetch`                                               |
+| `gp`| `jj git push -b` the bookmark under cursor                   |
+| `gP`| `jj git push --all --deleted`                                |
 | `u` | `jj undo`                                                    |
 
 ## Configuration
@@ -152,6 +155,9 @@ require("jujutsu").setup({
       track                   = "t",
       untrack                 = "T",
       toggle_all              = "r",
+      git_fetch               = "gf",
+      git_push                = "gp",
+      git_push_all            = "gP",
       undo                    = "u",
       goto_log                = "gl",
       goto_bookmark           = "gb",

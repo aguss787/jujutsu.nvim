@@ -33,6 +33,9 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@field track string|false Key to track a bookmark
 ---@field untrack string|false Key to untrack a bookmark
 ---@field toggle_all string|false Key to toggle between local and all remote bookmarks
+---@field git_fetch string|false Key to run jj git fetch
+---@field git_push string|false Key to run jj git push -b on cursor bookmark
+---@field git_push_all string|false Key to run jj git push --all --deleted
 ---@field undo string|false Key to undo the last operation
 ---@field goto_log string|false Key to switch to the log buffer
 ---@field goto_bookmark string|false Key to switch to the bookmark buffer
@@ -80,6 +83,9 @@ local defaults = {
       track = "t",
       untrack = "T",
       toggle_all = "r",
+      git_fetch = "gf",
+      git_push = "gp",
+      git_push_all = "gP",
       undo = "u",
       goto_log = "gl",
       goto_bookmark = "gb",

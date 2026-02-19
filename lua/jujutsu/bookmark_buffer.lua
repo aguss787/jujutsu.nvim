@@ -88,6 +88,28 @@ function M.setup_keymaps(buf, keymaps)
     vim.notify("jj bookmark list: " .. mode, vim.log.levels.INFO)
   end, "Toggle between local and all remote bookmarks")
 
+  map(keymaps.git_push, function()
+    local name = cursor_bookmark()
+    if not name then
+      return
+    end
+    jj.run_async("git_push", "pushing...", { "git", "push", "-b", name }, function()
+      M.refresh(buf)
+    end)
+  end, "jj git push -b bookmark under cursor")
+
+  map(keymaps.git_fetch, function()
+    jj.run_async("git_fetch", "fetching...", { "git", "fetch" }, function()
+      M.refresh(buf)
+    end)
+  end, "jj git fetch")
+
+  map(keymaps.git_push_all, function()
+    jj.run_async("git_push_all", "pushing all...", { "git", "push", "--all", "--deleted" }, function()
+      M.refresh(buf)
+    end)
+  end, "jj git push --all --deleted")
+
   map(keymaps.undo, function()
     if jj.run({ "undo" }) then
       M.refresh(buf)
