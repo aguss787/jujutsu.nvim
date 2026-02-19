@@ -36,17 +36,24 @@ Open the bookmark list buffer:
 :Jj bookmark
 ```
 
-The log and bookmark buffers share the same window — opening one replaces the other in the same split.
+Open the operation log buffer:
+
+```
+:Jj op
+```
+
+The log, bookmark, and op buffers share the same window — opening one replaces the other in the same split.
 
 ## Shared Keymaps
 
-These keymaps are available in both the log and bookmark buffers:
+These keymaps are available in the log, bookmark, and op buffers:
 
 | Key     | Action                     |
 |---------|----------------------------|
 | `q`     | Close the buffer           |
 | `gl`    | Switch to log buffer       |
 | `gb`    | Switch to bookmark buffer  |
+| `go`    | Switch to op buffer        |
 | `<C-r>` | Refresh the buffer         |
 
 ## Log Buffer Keymaps
@@ -112,6 +119,12 @@ Opens a selection menu to choose the destination mode:
 | `gP`   | `jj git push --all --deleted`                             |
 | `u`    | `jj undo`                                                 |
 
+## Op Buffer Keymaps
+
+| Key  | Action     |
+|------|------------|
+| `u`  | `jj undo`  |
+
 ## Configuration
 
 The log buffer opens in a vertical split (left/right) by default. To use a horizontal split (top/bottom):
@@ -152,6 +165,7 @@ require("jujutsu").setup({
       quit                    = "q",
       goto_log                = "gl",
       goto_bookmark           = "gb",
+      goto_op                 = "go",
       refresh                 = "<C-r>",
     },
     bookmark = {
@@ -168,6 +182,15 @@ require("jujutsu").setup({
       quit                    = "q",
       goto_log                = "gl",
       goto_bookmark           = "gb",
+      goto_op                 = "go",
+      refresh                 = "<C-r>",
+    },
+    op = {
+      undo                    = "u",
+      quit                    = "q",
+      goto_log                = "gl",
+      goto_bookmark           = "gb",
+      goto_op                 = "go",
       refresh                 = "<C-r>",
     },
   },

@@ -10,15 +10,16 @@ CONTENTS                                                     *jujutsu-contents*
   5. Shared Keymaps .............. |jujutsu-shared-keymaps|
   6. Log Buffer Keymaps .......... |jujutsu-log-keymaps|
   7. Bookmark Buffer Keymaps ..... |jujutsu-bookmark-keymaps|
-  8. Marks ....................... |jujutsu-marks|
-  9. Configuration ............... |jujutsu-configuration|
+  8. Op Buffer Keymaps ........... |jujutsu-op-keymaps|
+  9. Marks ....................... |jujutsu-marks|
+  10. Configuration .............. |jujutsu-configuration|
 
 ==============================================================================
 INTRODUCTION                                             *jujutsu-introduction*
 
 jujutsu.nvim is a Neovim plugin for the Jujutsu version control system.
-It provides interactive log and bookmark list buffers with keymaps for
-common jj operations.
+It provides interactive log, bookmark list, and operation log buffers with
+keymaps for common jj operations.
 
 ==============================================================================
 REQUIREMENTS                                             *jujutsu-requirements*
@@ -46,18 +47,20 @@ COMMANDS                                                     *jujutsu-commands*
   `:Jj`           Open the log buffer (same as `:Jj log`)
   `:Jj log`       Open the log buffer
   `:Jj bookmark`  Open the bookmark list buffer
+  `:Jj op`        Open the operation log buffer
 
-  The log and bookmark buffers share the same window — opening one replaces
-  the other in the same split.
+  The log, bookmark, and op buffers share the same window — opening one
+  replaces the other in the same split.
 
 ==============================================================================
 SHARED KEYMAPS                                         *jujutsu-shared-keymaps*
 
-These keymaps are available in both the log and bookmark buffers:
+These keymaps are available in the log, bookmark, and op buffers:
 
   `q`       Close the buffer
   `gl`      Switch to log buffer
   `gb`      Switch to bookmark buffer
+  `go`      Switch to op buffer
   `<C-r>`   Refresh the buffer
 
 ==============================================================================
@@ -117,6 +120,11 @@ BOOKMARK BUFFER KEYMAPS                             *jujutsu-bookmark-keymaps*
   `gf`      `jj git fetch`
   `gp`      `jj git push -b` the bookmark under cursor
   `gP`      `jj git push --all --deleted`
+  `u`       `jj undo`
+
+==============================================================================
+OP BUFFER KEYMAPS                                           *jujutsu-op-keymaps*
+
   `u`       `jj undo`
 
 ==============================================================================
@@ -191,8 +199,8 @@ cache_gpg ~
                                                            *jujutsu-keymaps*
 keymaps ~
   Type: `table`
-  Keymaps are split into `log` and `bookmark` sub-tables. Only the keys
-  you specify are overridden; the rest keep their defaults.
+  Keymaps are split into `log`, `bookmark`, and `op` sub-tables. Only the
+  keys you specify are overridden; the rest keep their defaults.
 
   Set a keymap to `false` to disable it: >lua
 
@@ -230,6 +238,7 @@ keymaps ~
     `quit`                    `"q"`
     `goto_log`                `"gl"`
     `goto_bookmark`           `"gb"`
+    `goto_op`                 `"go"`
     `refresh`                 `"<C-r>"`
 
   Bookmark keymaps (defaults): ~
@@ -246,6 +255,15 @@ keymaps ~
     `quit`                    `"q"`
     `goto_log`                `"gl"`
     `goto_bookmark`           `"gb"`
+    `goto_op`                 `"go"`
+    `refresh`                 `"<C-r>"`
+
+  Op keymaps (defaults): ~
+    `undo`                    `"u"`
+    `quit`                    `"q"`
+    `goto_log`                `"gl"`
+    `goto_bookmark`           `"gb"`
+    `goto_op`                 `"go"`
     `refresh`                 `"<C-r>"`
 
 ==============================================================================

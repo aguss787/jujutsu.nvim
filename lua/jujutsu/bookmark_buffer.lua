@@ -64,6 +64,10 @@ function M.setup_keymaps(buf, keymaps)
     require("jujutsu").bookmark()
   end, "Switch to bookmark buffer")
 
+  map(keymaps.goto_op, function()
+    require("jujutsu").op()
+  end, "Switch to op buffer")
+
   local function track_action(subcmd)
     local name = cursor_bookmark()
     if not name then

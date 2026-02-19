@@ -4,6 +4,7 @@ local function reload()
   package.loaded["jujutsu"] = nil
   package.loaded["jujutsu.log_buffer"] = nil
   package.loaded["jujutsu.bookmark_buffer"] = nil
+  package.loaded["jujutsu.op_buffer"] = nil
   return require("jujutsu")
 end
 
@@ -17,6 +18,10 @@ describe("setup", function()
     assert.equal("m", jujutsu.config.keymaps.log.mark)
     assert.equal("u", jujutsu.config.keymaps.log.undo)
     assert.equal("t", jujutsu.config.keymaps.bookmark.track)
+    assert.equal("go", jujutsu.config.keymaps.log.goto_op)
+    assert.equal("go", jujutsu.config.keymaps.bookmark.goto_op)
+    assert.equal("u", jujutsu.config.keymaps.op.undo)
+    assert.equal("go", jujutsu.config.keymaps.op.goto_op)
   end)
 
   it("merges user keymaps with defaults", function()
@@ -96,6 +101,8 @@ describe("log", function()
       local stdout = "○  abc123 a@b.com 2024-01-01 test\n"
       if cmd[2] == "bookmark" and cmd[3] == "list" then
         stdout = "master: abc123 test\n"
+      elseif cmd[2] == "op" and cmd[3] == "log" then
+        stdout = "abc12345 user@test.com 2024-01-01 some operation\n"
       end
       return {
         wait = function()
@@ -146,5 +153,23 @@ describe("log", function()
     assert.equal(win_count_after_bookmark, #vim.api.nvim_list_wins())
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     assert.truthy(lines[1]:find("abc123"))
+  end)
+
+  it("op replaces log in the same window", function()
+    local jujutsu = reload()
+    jujutsu.setup()
+    jujutsu.log()
+    local win_count_after_log = #vim.api.nvim_list_wins()
+    jujutsu.op()
+    assert.equal(win_count_after_log, #vim.api.nvim_list_wins())
+  end)
+
+  it("log replaces op in the same window", function()
+    local jujutsu = reload()
+    jujutsu.setup()
+    jujutsu.op()
+    local win_count = #vim.api.nvim_list_wins()
+    jujutsu.log()
+    assert.equal(win_count, #vim.api.nvim_list_wins())
   end)
 end)

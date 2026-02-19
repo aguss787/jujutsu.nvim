@@ -1,6 +1,7 @@
 local M = {}
 local log_buffer = require("jujutsu.log_buffer")
 local bookmark_buffer = require("jujutsu.bookmark_buffer")
+local op_buffer = require("jujutsu.op_buffer")
 
 ---@class JujutsuLogKeymaps
 ---@field edit string|false Key to edit the revision under cursor
@@ -27,6 +28,7 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@field quit string|false Key to close the buffer
 ---@field goto_log string|false Key to switch to the log buffer
 ---@field goto_bookmark string|false Key to switch to the bookmark buffer
+---@field goto_op string|false Key to switch to the op buffer
 ---@field refresh string|false Key to refresh the buffer
 
 ---@class JujutsuBookmarkKeymaps
@@ -43,11 +45,21 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@field quit string|false Key to close the buffer
 ---@field goto_log string|false Key to switch to the log buffer
 ---@field goto_bookmark string|false Key to switch to the bookmark buffer
+---@field goto_op string|false Key to switch to the op buffer
+---@field refresh string|false Key to refresh the buffer
+
+---@class JujutsuOpKeymaps
+---@field undo string|false Key to undo the last operation
+---@field quit string|false Key to close the buffer
+---@field goto_log string|false Key to switch to the log buffer
+---@field goto_bookmark string|false Key to switch to the bookmark buffer
+---@field goto_op string|false Key to switch to the op buffer
 ---@field refresh string|false Key to refresh the buffer
 
 ---@class JujutsuKeymaps
 ---@field log JujutsuLogKeymaps
 ---@field bookmark JujutsuBookmarkKeymaps
+---@field op JujutsuOpKeymaps
 
 ---@class JujutsuConfig
 ---@field keymaps JujutsuKeymaps
@@ -82,6 +94,7 @@ local defaults = {
       quit = "q",
       goto_log = "gl",
       goto_bookmark = "gb",
+      goto_op = "go",
       refresh = "<C-r>",
     },
     bookmark = {
@@ -98,6 +111,15 @@ local defaults = {
       quit = "q",
       goto_log = "gl",
       goto_bookmark = "gb",
+      goto_op = "go",
+      refresh = "<C-r>",
+    },
+    op = {
+      undo = "u",
+      quit = "q",
+      goto_log = "gl",
+      goto_bookmark = "gb",
+      goto_op = "go",
       refresh = "<C-r>",
     },
   },
@@ -119,23 +141,28 @@ end
 local log_buf = nil
 ---@type integer?
 local bookmark_buf = nil
+---@type integer?
+local op_buf = nil
 
 local function open_split()
   local cmd = M.config.split == "vertical" and "vsplit" or "split"
   vim.cmd(cmd)
 end
 
----Show target_buf in a window, reusing other_buf's window if visible
+---Show target_buf in a window, reusing any visible other buffer's window
 ---@param target_buf integer
----@param other_buf integer?
-local function show_buf(target_buf, other_buf)
-  -- If the other buffer is visible, replace it in that window
-  if other_buf and vim.api.nvim_buf_is_valid(other_buf) then
-    for _, win in ipairs(vim.api.nvim_list_wins()) do
-      if vim.api.nvim_win_get_buf(win) == other_buf then
-        vim.api.nvim_win_set_buf(win, target_buf)
-        vim.api.nvim_set_current_win(win)
-        return
+---@param ... integer? other buffers to check
+local function show_buf(target_buf, ...)
+  -- If any other buffer is visible, replace it in that window
+  for i = 1, select("#", ...) do
+    local other_buf = select(i, ...)
+    if other_buf and vim.api.nvim_buf_is_valid(other_buf) then
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if vim.api.nvim_win_get_buf(win) == other_buf then
+          vim.api.nvim_win_set_buf(win, target_buf)
+          vim.api.nvim_set_current_win(win)
+          return
+        end
       end
     end
   end
@@ -155,7 +182,7 @@ end
 M.log = function()
   if log_buf and vim.api.nvim_buf_is_valid(log_buf) then
     log_buffer.refresh(log_buf)
-    show_buf(log_buf, bookmark_buf)
+    show_buf(log_buf, bookmark_buf, op_buf)
     return
   end
 
@@ -170,14 +197,14 @@ M.log = function()
   vim.bo[log_buf].filetype = "jjlog"
   log_buffer.setup_keymaps(log_buf, M.config.keymaps.log)
 
-  show_buf(log_buf, bookmark_buf)
+  show_buf(log_buf, bookmark_buf, op_buf)
 end
 
 ---Run `jj bookmark list` and show the output in a new scratch buffer, reusing it if it already exists
 M.bookmark = function()
   if bookmark_buf and vim.api.nvim_buf_is_valid(bookmark_buf) then
     bookmark_buffer.refresh(bookmark_buf)
-    show_buf(bookmark_buf, log_buf)
+    show_buf(bookmark_buf, log_buf, op_buf)
     return
   end
 
@@ -193,7 +220,29 @@ M.bookmark = function()
   vim.bo[bookmark_buf].filetype = "jjbookmark"
   bookmark_buffer.setup_keymaps(bookmark_buf, M.config.keymaps.bookmark)
 
-  show_buf(bookmark_buf, log_buf)
+  show_buf(bookmark_buf, log_buf, op_buf)
+end
+
+---Run `jj op log` and show the output in a new scratch buffer, reusing it if it already exists
+M.op = function()
+  if op_buf and vim.api.nvim_buf_is_valid(op_buf) then
+    op_buffer.refresh(op_buf)
+    show_buf(op_buf, log_buf, bookmark_buf)
+    return
+  end
+
+  op_buf = vim.api.nvim_create_buf(false, true)
+  vim.bo[op_buf].bufhidden = "wipe"
+
+  if not op_buffer.refresh(op_buf) then
+    op_buf = nil
+    return
+  end
+
+  vim.bo[op_buf].filetype = "jjop"
+  op_buffer.setup_keymaps(op_buf, M.config.keymaps.op)
+
+  show_buf(op_buf, log_buf, bookmark_buf)
 end
 
 return M

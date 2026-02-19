@@ -402,6 +402,10 @@ function M.setup_keymaps(buf, keymaps)
     require("jujutsu").bookmark()
   end, "Switch to bookmark buffer")
 
+  map(keymaps.goto_op, function()
+    require("jujutsu").op()
+  end, "Switch to op buffer")
+
   map(keymaps.describe, function()
     local rev = cursor_rev()
     if not rev then

@@ -9,6 +9,8 @@ vim.api.nvim_create_user_command("Jj", function(args)
     require("jujutsu").log()
   elseif subcmd == "bookmark" then
     require("jujutsu").bookmark()
+  elseif subcmd == "op" then
+    require("jujutsu").op()
   else
     vim.notify("jujutsu: unknown command '" .. subcmd .. "'", vim.log.levels.ERROR)
   end
@@ -16,6 +18,6 @@ end, {
   nargs = "?",
   desc = "Jujutsu commands",
   complete = function()
-    return { "log", "bookmark" }
+    return { "log", "bookmark", "op" }
   end,
 })
