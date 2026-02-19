@@ -1,4 +1,7 @@
-local default_keymaps = require("tests.helpers").default_bookmark_keymaps
+local helpers = require("tests.helpers")
+local default_keymaps = helpers.default_bookmark_keymaps
+local get_cb = helpers.get_cb
+local was_called = helpers.was_called
 
 local function reload()
   package.loaded["jujutsu.bookmark_buffer"] = nil
@@ -65,40 +68,6 @@ end)
 
 local BOOKMARK_LINE1 = "master: abc12345 some commit"
 local BOOKMARK_LINE2 = "feature: def67890 another commit"
-
----Find the callback registered for a normal-mode lhs on buf.
----@param buf integer
----@param lhs string
----@return function
-local function get_cb(buf, lhs)
-  for _, km in ipairs(vim.api.nvim_buf_get_keymap(buf, "n")) do
-    if km.lhs == lhs then
-      return km.callback
-    end
-  end
-  error("no keymap '" .. lhs .. "' on buf " .. buf)
-end
-
----@param calls table[]
----@param expected string[]
----@return boolean
-local function was_called(calls, expected)
-  for _, call in ipairs(calls) do
-    if #call == #expected then
-      local match = true
-      for i, v in ipairs(expected) do
-        if call[i] ~= v then
-          match = false
-          break
-        end
-      end
-      if match then
-        return true
-      end
-    end
-  end
-  return false
-end
 
 describe("bookmark buffer operations", function()
   local buf, calls, orig_system

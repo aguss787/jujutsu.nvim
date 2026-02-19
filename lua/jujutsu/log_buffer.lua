@@ -104,7 +104,13 @@ function M.refresh(buf)
   if lines[#lines] == "" then
     table.remove(lines)
   end
+  local win = vim.fn.bufwinid(buf)
+  local cursor = win ~= -1 and vim.api.nvim_win_get_cursor(win) or nil
   ansi.render(buf, lines)
+  if cursor then
+    local line_count = vim.api.nvim_buf_line_count(buf)
+    pcall(vim.api.nvim_win_set_cursor, win, { math.min(cursor[1], line_count), cursor[2] })
+  end
   apply_mark_highlights(buf)
   return true
 end
@@ -328,10 +334,7 @@ function M.setup_keymaps(buf, keymaps)
       if not name or name == "" then
         return
       end
-      if not name:find("@") then
-        name = name .. "@origin"
-      end
-      if jj.run({ "bookmark", subcmd, name }) then
+      if jj.run({ "bookmark", subcmd, jj.with_remote(name) }) then
         M.refresh(buf)
       end
     end)

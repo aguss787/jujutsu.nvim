@@ -1,4 +1,7 @@
-local default_keymaps = require("tests.helpers").default_log_keymaps
+local helpers = require("tests.helpers")
+local default_keymaps = helpers.default_log_keymaps
+local get_cb = helpers.get_cb
+local was_called = helpers.was_called
 
 local function reload()
   package.loaded["jujutsu.log_buffer"] = nil
@@ -11,19 +14,6 @@ local LINE2 = "○  rev00002 a@b.com 2024-01-01 second commit"
 local LINE_IMMUTABLE = "◆  rev00003 a@b.com 2024-01-01 immutable commit"
 local LINE_BRANCHED = "│ ◆  rev00004 a@b.com 2024-01-01 branched commit"
 
----Find the callback registered for a normal-mode lhs on buf.
----@param buf integer
----@param lhs string
----@return function
-local function get_cb(buf, lhs)
-  for _, km in ipairs(vim.api.nvim_buf_get_keymap(buf, "n")) do
-    if km.lhs == lhs then
-      return km.callback
-    end
-  end
-  error("no keymap '" .. lhs .. "' on buf " .. buf)
-end
-
 ---Execute fn with buf as the current buffer and cursor on linum (1-based).
 ---@param buf integer
 ---@param linum integer
@@ -33,28 +23,6 @@ local function on_line(buf, linum, fn)
     vim.api.nvim_win_set_cursor(0, { linum, 0 })
     fn()
   end)
-end
-
----Return true if expected command was among the captured vim.system calls.
----@param calls table[]
----@param expected string[]
----@return boolean
-local function was_called(calls, expected)
-  for _, call in ipairs(calls) do
-    if #call == #expected then
-      local match = true
-      for i, v in ipairs(expected) do
-        if call[i] ~= v then
-          match = false
-          break
-        end
-      end
-      if match then
-        return true
-      end
-    end
-  end
-  return false
 end
 
 describe("jj operation calls", function()

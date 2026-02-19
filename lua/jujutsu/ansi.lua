@@ -144,7 +144,10 @@ function M.render(buf, raw_lines)
   vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
   for lnum, highlights in ipairs(all_highlights) do
     for _, hl in ipairs(highlights) do
-      vim.api.nvim_buf_add_highlight(buf, ns, hl[3], lnum - 1, hl[1], hl[2])
+      vim.api.nvim_buf_set_extmark(buf, ns, lnum - 1, hl[1], {
+        end_col = hl[2],
+        hl_group = hl[3],
+      })
     end
   end
 end

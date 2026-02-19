@@ -27,7 +27,13 @@ function M.refresh(buf)
   if lines[#lines] == "" then
     table.remove(lines)
   end
+  local win = vim.fn.bufwinid(buf)
+  local cursor = win ~= -1 and vim.api.nvim_win_get_cursor(win) or nil
   ansi.render(buf, lines)
+  if cursor then
+    local line_count = vim.api.nvim_buf_line_count(buf)
+    pcall(vim.api.nvim_win_set_cursor, win, { math.min(cursor[1], line_count), cursor[2] })
+  end
   return true
 end
 
@@ -63,10 +69,7 @@ function M.setup_keymaps(buf, keymaps)
     if not name then
       return
     end
-    if not name:find("@") then
-      name = name .. "@origin"
-    end
-    if jj.run({ "bookmark", subcmd, name }) then
+    if jj.run({ "bookmark", subcmd, jj.with_remote(name) }) then
       M.refresh(buf)
     end
   end
@@ -144,13 +147,11 @@ function M.setup_keymaps(buf, keymaps)
     end
   end, "jj undo")
 
-  if keymaps.refresh and keymaps.refresh ~= false then
-    vim.keymap.set("n", keymaps.refresh, function()
-      if M.refresh(buf) then
-        vim.notify("jj bookmark list: refreshed", vim.log.levels.INFO)
-      end
-    end, { buffer = buf, desc = "Refresh the bookmark list buffer" })
-  end
+  map(keymaps.refresh, function()
+    if M.refresh(buf) then
+      vim.notify("jj bookmark list: refreshed", vim.log.levels.INFO)
+    end
+  end, "Refresh the bookmark list buffer")
 end
 
 return M

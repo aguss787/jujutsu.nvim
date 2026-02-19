@@ -134,4 +134,11 @@ function M.push_async(id, msg, args, on_success)
   end
 end
 
+---Append @origin to a bookmark name if it doesn't already contain @
+---@param name string
+---@return string
+function M.with_remote(name)
+  return name:find("@") and name or (name .. "@origin")
+end
+
 return M
