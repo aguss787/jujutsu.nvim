@@ -132,20 +132,32 @@ describe("bookmark buffer operations", function()
     end
   end)
 
-  it("edit calls jj edit with cursor bookmark", function()
+  it("edit calls jj edit and switches to log buffer", function()
+    local log_called = false
+    local jujutsu = require("jujutsu")
+    local orig_log = jujutsu.log
+    jujutsu.log = function() log_called = true end
     vim.api.nvim_buf_call(buf, function()
       vim.api.nvim_win_set_cursor(0, { 1, 0 })
       get_cb(buf, "<CR>")()
     end)
+    jujutsu.log = orig_log
     assert.is_true(was_called(calls, { "jj", "edit", "master" }))
+    assert.is_true(log_called)
   end)
 
-  it("new calls jj new with cursor bookmark", function()
+  it("new calls jj new and switches to log buffer", function()
+    local log_called = false
+    local jujutsu = require("jujutsu")
+    local orig_log = jujutsu.log
+    jujutsu.log = function() log_called = true end
     vim.api.nvim_buf_call(buf, function()
       vim.api.nvim_win_set_cursor(0, { 1, 0 })
       get_cb(buf, "n")()
     end)
+    jujutsu.log = orig_log
     assert.is_true(was_called(calls, { "jj", "new", "master" }))
+    assert.is_true(log_called)
   end)
 
   it("delete calls jj bookmark delete on cursor bookmark", function()
