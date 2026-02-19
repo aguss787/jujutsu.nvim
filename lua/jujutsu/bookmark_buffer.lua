@@ -55,7 +55,10 @@ function M.setup_keymaps(buf, keymaps)
     if not name then
       return
     end
-    if jj.run({ "bookmark", subcmd, name .. "@origin" }) then
+    if not name:find("@") then
+      name = name .. "@origin"
+    end
+    if jj.run({ "bookmark", subcmd, name }) then
       M.refresh(buf)
     end
   end

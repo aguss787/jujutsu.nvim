@@ -156,6 +156,17 @@ describe("bookmark buffer operations", function()
     assert.is_true(was_called(calls, { "jj", "bookmark", "untrack", "feature@origin" }))
   end)
 
+  it("track preserves existing @remote in bookmark name", function()
+    vim.bo[buf].modifiable = true
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "my-branch@origin: abc12345 some commit" })
+    vim.bo[buf].modifiable = false
+    vim.api.nvim_buf_call(buf, function()
+      vim.api.nvim_win_set_cursor(0, { 1, 0 })
+      get_cb(buf, "t")()
+    end)
+    assert.is_true(was_called(calls, { "jj", "bookmark", "track", "my-branch@origin" }))
+  end)
+
   it("toggle_all refreshes with --all-remotes then back to local", function()
     get_cb(buf, "r")()
     assert.is_true(was_called(calls, { "jj", "bookmark", "list", "--all-remotes" }))
