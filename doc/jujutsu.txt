@@ -164,23 +164,27 @@ split ~
 
                                                        *jujutsu-cache-gpg*
 cache_gpg ~
-  Type: `boolean`
+  Type: `false` | `"on-push"` | `"all"`
   Default: `false`
 
-  When enabled, the plugin checks whether your GPG passphrase is cached in
-  gpg-agent before each push operation. If the passphrase is not cached, you
-  are prompted to enter it (characters are hidden). The passphrase is then
-  cached in gpg-agent via a loopback signing call before the push proceeds.
+  Controls when the plugin pre-caches your GPG passphrase in gpg-agent.
+  If the passphrase is not cached, you are prompted to enter it (characters
+  are hidden). The passphrase is then cached via a loopback signing call
+  before the jj command proceeds.
 
-  This prevents `jj git push` from blocking on an interactive GPG prompt
-  that cannot be handled inside an async `vim.system()` call.
+  `false`      No GPG passphrase caching.
+  `"on-push"`  Check before push operations only.
+  `"all"`      Check before all jj operations.
+
+  This prevents jj from blocking on an interactive GPG prompt that cannot
+  be handled inside Neovim.
 
   Requires `gpg` in `$PATH` and `allow-loopback-pinentry` in
   `~/.gnupg/gpg-agent.conf`. After adding the line, reload the agent with
   `gpgconf --kill gpg-agent`. >lua
 
     require("jujutsu").setup({
-      cache_gpg = true,
+      cache_gpg = "on-push",
     })
 <
 

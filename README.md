@@ -176,13 +176,16 @@ require("jujutsu").setup({
 
 ### GPG Signing
 
-If you use GPG commit signing with jj, push operations may block waiting for
-a passphrase. Enable `cache_gpg` to have the plugin prompt for your
-passphrase (if not already cached in gpg-agent) before pushing:
+If you use GPG commit signing with jj, operations may block waiting for
+a passphrase. Set `cache_gpg` to have the plugin prompt for your
+passphrase (if not already cached in gpg-agent) before running jj commands:
+
+- `"on-push"` — check before push operations only
+- `"all"` — check before all jj operations
 
 ```lua
 require("jujutsu").setup({
-  cache_gpg = true,
+  cache_gpg = "on-push", -- or "all"
 })
 ```
 

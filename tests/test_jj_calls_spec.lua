@@ -307,7 +307,7 @@ describe("jj operation calls", function()
   end)
 end)
 
-describe("push_async with cache_gpg", function()
+describe("cache_gpg", function()
   local jj_mod
   local calls
   local orig_system
@@ -360,7 +360,6 @@ describe("push_async with cache_gpg", function()
     package.loaded["jujutsu.jj"] = nil
     package.loaded["jujutsu.progress"] = nil
     jj_mod = require("jujutsu.jj")
-    jj_mod.cache_gpg = true
   end)
 
   after_each(function()
@@ -369,7 +368,10 @@ describe("push_async with cache_gpg", function()
     vim.fn.inputsecret = orig_inputsecret
   end)
 
-  it("skips gpg prompt when passphrase is already cached", function()
+  -- on-push mode: only push operations trigger GPG check
+
+  it("on-push: skips gpg prompt when passphrase is already cached", function()
+    jj_mod.cache_gpg = "on-push"
     gpg_cached = true
     local success = false
     jj_mod.push_async("test", "testing...", { "git", "push", "--all" }, function()
@@ -382,7 +384,8 @@ describe("push_async with cache_gpg", function()
     assert.equal(0, #loopback_calls)
   end)
 
-  it("prompts and caches passphrase when not cached", function()
+  it("on-push: prompts and caches passphrase when not cached", function()
+    jj_mod.cache_gpg = "on-push"
     gpg_cached = false
     vim.fn.inputsecret = function()
       return "my-secret"
@@ -399,7 +402,8 @@ describe("push_async with cache_gpg", function()
     assert.equal("my-secret", loopback_calls[1].opts.stdin)
   end)
 
-  it("aborts push when user provides empty passphrase", function()
+  it("on-push: aborts push when user provides empty passphrase", function()
+    jj_mod.cache_gpg = "on-push"
     gpg_cached = false
     vim.fn.inputsecret = function()
       return ""
@@ -411,13 +415,100 @@ describe("push_async with cache_gpg", function()
     assert.is_false(success)
   end)
 
-  it("delegates directly to run_async when cache_gpg is false", function()
+  it("on-push: does not check gpg for non-push run_async", function()
+    jj_mod.cache_gpg = "on-push"
+    local success = false
+    jj_mod.run_async("test", "testing...", { "git", "fetch" }, function()
+      success = true
+    end)
+    assert.is_true(success)
+    local gpg_calls = vim.tbl_filter(function(c)
+      return c.cmd[1] == "gpg"
+    end, calls)
+    assert.equal(0, #gpg_calls)
+  end)
+
+  it("on-push: does not check gpg for sync run", function()
+    jj_mod.cache_gpg = "on-push"
+    jj_mod.run({ "log" })
+    local gpg_calls = vim.tbl_filter(function(c)
+      return c.cmd[1] == "gpg"
+    end, calls)
+    assert.equal(0, #gpg_calls)
+  end)
+
+  -- all mode: all jj operations trigger GPG check
+
+  it("all: checks gpg before sync run", function()
+    jj_mod.cache_gpg = "all"
+    gpg_cached = true
+    jj_mod.run({ "log" })
+    local gpg_calls = vim.tbl_filter(function(c)
+      return c.cmd[1] == "gpg"
+    end, calls)
+    assert.equal(1, #gpg_calls)
+  end)
+
+  it("all: aborts sync run when passphrase is empty", function()
+    jj_mod.cache_gpg = "all"
+    gpg_cached = false
+    vim.fn.inputsecret = function()
+      return ""
+    end
+    local result = jj_mod.run({ "log" })
+    assert.is_nil(result)
+    local jj_calls = vim.tbl_filter(function(c)
+      return c.cmd[1] == "jj"
+    end, calls)
+    assert.equal(0, #jj_calls)
+  end)
+
+  it("all: checks gpg before run_async", function()
+    jj_mod.cache_gpg = "all"
+    gpg_cached = true
+    local success = false
+    jj_mod.run_async("test", "testing...", { "git", "fetch" }, function()
+      success = true
+    end)
+    assert.is_true(success)
+    local gpg_calls = vim.tbl_filter(function(c)
+      return c.cmd[1] == "gpg"
+    end, calls)
+    assert.equal(1, #gpg_calls)
+  end)
+
+  it("all: checks gpg before push_async", function()
+    jj_mod.cache_gpg = "all"
+    gpg_cached = true
+    local success = false
+    jj_mod.push_async("test", "testing...", { "git", "push", "--all" }, function()
+      success = true
+    end)
+    assert.is_true(success)
+    local gpg_calls = vim.tbl_filter(function(c)
+      return c.cmd[1] == "gpg"
+    end, calls)
+    assert.equal(1, #gpg_calls)
+  end)
+
+  -- false mode: no GPG checks
+
+  it("false: no gpg checks for push_async", function()
     jj_mod.cache_gpg = false
     local success = false
     jj_mod.push_async("test", "testing...", { "git", "push", "--all" }, function()
       success = true
     end)
     assert.is_true(success)
+    local gpg_calls = vim.tbl_filter(function(c)
+      return c.cmd[1] == "gpg"
+    end, calls)
+    assert.equal(0, #gpg_calls)
+  end)
+
+  it("false: no gpg checks for run", function()
+    jj_mod.cache_gpg = false
+    jj_mod.run({ "log" })
     local gpg_calls = vim.tbl_filter(function(c)
       return c.cmd[1] == "gpg"
     end, calls)

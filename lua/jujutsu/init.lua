@@ -52,7 +52,7 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@class JujutsuConfig
 ---@field keymaps JujutsuKeymaps
 ---@field split "vertical"|"horizontal" How to split the window when opening the log buffer
----@field cache_gpg boolean Whether to pre-cache GPG passphrase before push operations
+---@field cache_gpg false|"on-push"|"all" Pre-cache GPG passphrase: false=off, "on-push"=before push, "all"=before all jj operations
 
 ---@type JujutsuConfig
 local defaults = {

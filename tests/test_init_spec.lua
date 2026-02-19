@@ -67,17 +67,23 @@ describe("setup", function()
     assert.is_false(jujutsu.config.cache_gpg)
   end)
 
-  it("allows enabling cache_gpg", function()
+  it("allows setting cache_gpg to on-push", function()
     local jujutsu = reload()
-    jujutsu.setup({ cache_gpg = true })
-    assert.is_true(jujutsu.config.cache_gpg)
+    jujutsu.setup({ cache_gpg = "on-push" })
+    assert.equal("on-push", jujutsu.config.cache_gpg)
+  end)
+
+  it("allows setting cache_gpg to all", function()
+    local jujutsu = reload()
+    jujutsu.setup({ cache_gpg = "all" })
+    assert.equal("all", jujutsu.config.cache_gpg)
   end)
 
   it("propagates cache_gpg to jj module", function()
     package.loaded["jujutsu.jj"] = nil
     local jujutsu = reload()
-    jujutsu.setup({ cache_gpg = true })
-    assert.is_true(require("jujutsu.jj").cache_gpg)
+    jujutsu.setup({ cache_gpg = "on-push" })
+    assert.equal("on-push", require("jujutsu.jj").cache_gpg)
   end)
 end)
 
