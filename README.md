@@ -14,7 +14,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-  "agus/jujutsu.nvim",
+  "aguss787/jujutsu.nvim",
   config = function()
     require("jujutsu").setup()
   end,
