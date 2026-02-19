@@ -84,6 +84,18 @@ describe("setup", function()
     assert.equal("all", jujutsu.config.cache_gpg)
   end)
 
+  it("defaults op_limit to 200", function()
+    local jujutsu = reload()
+    jujutsu.setup()
+    assert.equal(200, jujutsu.config.op_limit)
+  end)
+
+  it("allows overriding op_limit", function()
+    local jujutsu = reload()
+    jujutsu.setup({ op_limit = 50 })
+    assert.equal(50, jujutsu.config.op_limit)
+  end)
+
   it("propagates cache_gpg to jj module", function()
     package.loaded["jujutsu.jj"] = nil
     local jujutsu = reload()

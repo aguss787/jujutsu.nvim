@@ -171,6 +171,14 @@ split ~
   How to split the window when opening a buffer. `"vertical"` opens a
   side-by-side split, `"horizontal"` opens a top/bottom split.
 
+                                                          *jujutsu-op-limit*
+op_limit ~
+  Type: `integer`
+  Default: `200`
+
+  Maximum number of operations to show in the op buffer. Passed as
+  `--limit` to `jj op log`.
+
                                                        *jujutsu-cache-gpg*
 cache_gpg ~
   Type: `false` | `"on-push"` | `"all"`

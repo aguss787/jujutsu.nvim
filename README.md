@@ -136,6 +136,14 @@ require("jujutsu").setup({
 })
 ```
 
+The op buffer shows the last 200 operations by default. To change the limit:
+
+```lua
+require("jujutsu").setup({
+  op_limit = 50,
+})
+```
+
 All keymaps can be remapped or disabled. Only the keys you specify are overridden; the rest keep their defaults.
 
 ```lua

@@ -66,6 +66,7 @@ local op_buffer = require("jujutsu.op_buffer")
 ---@field keymaps JujutsuKeymaps
 ---@field split "vertical"|"horizontal" How to split the window when opening the log buffer
 ---@field cache_gpg false|"on-push"|"all" Pre-cache GPG passphrase: false=off, "on-push"=before push, "all"=before all jj operations
+---@field op_limit integer Maximum number of operations to show in the op buffer
 
 ---@type JujutsuConfig
 local defaults = {
@@ -127,6 +128,7 @@ local defaults = {
   },
   split = "vertical",
   cache_gpg = false,
+  op_limit = 200,
 }
 
 ---@type JujutsuConfig
@@ -228,7 +230,7 @@ end
 ---Run `jj op log` and show the output in a new scratch buffer, reusing it if it already exists
 M.op = function()
   if op_buf and vim.api.nvim_buf_is_valid(op_buf) then
-    op_buffer.refresh(op_buf)
+    op_buffer.refresh(op_buf, M.config.op_limit)
     show_buf(op_buf, log_buf, bookmark_buf)
     return
   end
@@ -236,7 +238,7 @@ M.op = function()
   op_buf = vim.api.nvim_create_buf(false, true)
   vim.bo[op_buf].bufhidden = "wipe"
 
-  if not op_buffer.refresh(op_buf) then
+  if not op_buffer.refresh(op_buf, M.config.op_limit) then
     op_buf = nil
     return
   end

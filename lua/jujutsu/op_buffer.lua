@@ -11,11 +11,22 @@ local function cursor_op()
   return vim.api.nvim_get_current_line():match(OP_PATTERN)
 end
 
+---@type integer?
+local last_limit = nil
+
 ---Fetch `jj op log` output and replace the contents of buf
 ---@param buf integer
+---@param limit? integer
 ---@return boolean success
-function M.refresh(buf)
-  local result = jj.run({ "op", "log", "--color=always" })
+function M.refresh(buf, limit)
+  if limit then
+    last_limit = limit
+  end
+  local cmd = { "op", "log", "--color=always" }
+  if last_limit then
+    vim.list_extend(cmd, { "--limit", tostring(last_limit) })
+  end
+  local result = jj.run(cmd)
   if not result then
     return false
   end

@@ -113,4 +113,13 @@ describe("op buffer operations", function()
     get_cb(buf, "u")()
     assert.is_true(was_called(calls, { "jj", "undo" }))
   end)
+
+  it("refresh passes --limit when limit was set", function()
+    local op_buffer = reload()
+    op_buffer.setup_keymaps(buf, default_keymaps)
+    op_buffer.refresh(buf, 50)
+    calls = {}
+    get_cb(buf, "<C-R>")()
+    assert.is_true(was_called(calls, { "jj", "op", "log", "--color=always", "--limit", "50" }))
+  end)
 end)
