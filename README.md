@@ -216,6 +216,14 @@ passphrase (if not already cached in gpg-agent) before running jj commands:
 - `"on-push"` — check before push operations only
 - `"all"` — check before all jj operations
 
+Requires `allow-loopback-pinentry` in `~/.gnupg/gpg-agent.conf`:
+
+```
+allow-loopback-pinentry
+```
+
+After adding the line, reload the agent: `gpgconf --kill gpg-agent`.
+
 ```lua
 require("jujutsu").setup({
   cache_gpg = "on-push", -- or "all"
@@ -234,14 +242,6 @@ behavior = "drop"
 [git]
 sign-on-push = true
 ```
-
-Requires `allow-loopback-pinentry` in `~/.gnupg/gpg-agent.conf`:
-
-```
-allow-loopback-pinentry
-```
-
-After adding the line, reload the agent: `gpgconf --kill gpg-agent`.
 
 Set a keymap to `false` to disable it:
 
