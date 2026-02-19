@@ -32,6 +32,11 @@ function M.refresh(buf)
   return true
 end
 
+---Reset toggle state to local-only (called when a new buffer is created)
+function M.reset()
+  show_all = false
+end
+
 ---Set up buffer-local keymaps for the bookmark buffer
 ---@param buf integer
 ---@param keymaps table<string, string|false>

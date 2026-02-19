@@ -174,6 +174,7 @@ M.bookmark = function()
 
   bookmark_buf = vim.api.nvim_create_buf(false, true)
   vim.bo[bookmark_buf].bufhidden = "wipe"
+  bookmark_buffer.reset()
 
   if not bookmark_buffer.refresh(bookmark_buf) then
     bookmark_buf = nil
