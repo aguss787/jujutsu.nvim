@@ -72,14 +72,14 @@ describe("jj operation calls", function()
   end)
 
   it("new calls jj new with the revision under cursor when no marks", function()
-    on_line(buf, 1, get_cb(buf, "n"))
+    on_line(buf, 1, get_cb(buf, "<C-N>"))
     assert.is_true(was_called(calls, { "jj", "new", "rev00001" }))
   end)
 
   it("new calls jj new with all marked revisions", function()
     on_line(buf, 1, get_cb(buf, "m")) -- mark rev00001
     on_line(buf, 2, get_cb(buf, "m")) -- mark rev00002
-    on_line(buf, 1, get_cb(buf, "n"))
+    on_line(buf, 1, get_cb(buf, "<C-N>"))
     local found = false
     for _, call in ipairs(calls) do
       if call[1] == "jj" and call[2] == "new" then
@@ -264,7 +264,7 @@ describe("jj operation calls", function()
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, { LINE1, LINE_IMMUTABLE })
     vim.bo[buf].modifiable = false
     on_line(buf, 2, get_cb(buf, "m")) -- mark immutable rev00003
-    on_line(buf, 1, get_cb(buf, "n")) -- new from marks
+    on_line(buf, 1, get_cb(buf, "<C-N>")) -- new from marks
     assert.is_true(was_called(calls, { "jj", "new", "rev00003" }))
   end)
 
@@ -273,14 +273,14 @@ describe("jj operation calls", function()
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, { LINE1, LINE_BRANCHED })
     vim.bo[buf].modifiable = false
     on_line(buf, 2, get_cb(buf, "m")) -- mark branched rev00004
-    on_line(buf, 1, get_cb(buf, "n")) -- new from marks
+    on_line(buf, 1, get_cb(buf, "<C-N>")) -- new from marks
     assert.is_true(was_called(calls, { "jj", "new", "rev00004" }))
   end)
 
   it("clear_marks removes marks so next operation uses cursor revision", function()
     on_line(buf, 2, get_cb(buf, "m")) -- mark rev00002
     on_line(buf, 1, get_cb(buf, "M")) -- clear all marks
-    on_line(buf, 1, get_cb(buf, "n")) -- new should use cursor rev, not marked
+    on_line(buf, 1, get_cb(buf, "<C-N>")) -- new should use cursor rev, not marked
     assert.is_true(was_called(calls, { "jj", "new", "rev00001" }))
   end)
 end)

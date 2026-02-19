@@ -69,7 +69,7 @@ LOG BUFFER KEYMAPS                                       *jujutsu-log-keymaps*
   `<CR>`    `jj edit` the revision under cursor
   `m`       Toggle mark on revision under cursor (see |jujutsu-marks|)
   `M`       Clear all marks
-  `n`       `jj new` from revision(s)
+  `<C-n>`   `jj new` from revision(s)
   `a`       `jj abandon` revision(s)
   `s`       `jj squash` into parent, or into single marked rev
   `r`       `jj rebase -s` revision onto marked destination(s)
@@ -114,7 +114,7 @@ BOOKMARK BUFFER KEYMAPS                             *jujutsu-bookmark-keymaps*
   `<CR>`    `jj edit` bookmark under cursor and switch to log buffer
   `m`       Toggle mark on bookmark under cursor (see |jujutsu-marks|)
   `M`       Clear all marks
-  `n`       `jj new` from the bookmark under cursor
+  `<C-n>`   `jj new` from the bookmark under cursor
   `d`       `jj bookmark delete` bookmark(s)
   `t`       `jj bookmark track` bookmark(s) (`@origin`)
   `T`       `jj bookmark untrack` bookmark(s) (`@origin`)
@@ -139,7 +139,7 @@ depending on the operation:
   Log buffer ~
 
   Source revisions ~
-    `n`, `a` act on all marked revisions instead of the cursor revision.
+    `<C-n>`, `a` act on all marked revisions instead of the cursor revision.
 
   Destination revisions ~
     `r`, `R`, `p`, `P` use marks as the destination to rebase/duplicate onto.
@@ -233,7 +233,7 @@ keymaps ~
     `edit`                    `"<CR>"`
     `mark`                    `"m"`
     `clear_marks`             `"M"`
-    `new`                     `"n"`
+    `new`                     `"<C-n>"`
     `abandon`                 `"a"`
     `squash`                  `"s"`
     `rebase`                  `"r"`
@@ -261,7 +261,7 @@ keymaps ~
     `edit`                    `"<CR>"`
     `mark`                    `"m"`
     `clear_marks`             `"M"`
-    `new`                     `"n"`
+    `new`                     `"<C-n>"`
     `delete`                  `"d"`
     `track`                   `"t"`
     `untrack`                 `"T"`

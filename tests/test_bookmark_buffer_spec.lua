@@ -125,7 +125,7 @@ describe("bookmark buffer operations", function()
     jujutsu.log = function() log_called = true end
     vim.api.nvim_buf_call(buf, function()
       vim.api.nvim_win_set_cursor(0, { 1, 0 })
-      get_cb(buf, "n")()
+      get_cb(buf, "<C-N>")()
     end)
     jujutsu.log = orig_log
     assert.is_true(was_called(calls, { "jj", "new", "master" }))
