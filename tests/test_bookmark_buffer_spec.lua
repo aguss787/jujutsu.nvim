@@ -198,11 +198,11 @@ describe("bookmark buffer operations", function()
 
   it("toggle_all refreshes with --all-remotes then back to local", function()
     get_cb(buf, "r")()
-    assert.is_true(was_called(calls, { "jj", "bookmark", "list", "--all-remotes" }))
+    assert.is_true(was_called(calls, { "jj", "bookmark", "list", "--color=always", "--all-remotes" }))
 
     calls = {}
     get_cb(buf, "r")()
-    assert.is_true(was_called(calls, { "jj", "bookmark", "list" }))
+    assert.is_true(was_called(calls, { "jj", "bookmark", "list", "--color=always" }))
   end)
 
   it("git_fetch calls jj git fetch", function()

@@ -5,6 +5,7 @@ local marked_revs = {}
 
 local marks_ns = vim.api.nvim_create_namespace("jjlog_marks")
 local jj = require("jujutsu.jj")
+local ansi = require("jujutsu.ansi")
 
 local REV_PATTERN = "[@◉○◆]%s+(%w+)"
 
@@ -95,7 +96,7 @@ end
 ---@param buf integer
 ---@return boolean success
 function M.refresh(buf)
-  local result = jj.run({ "log" })
+  local result = jj.run({ "log", "--color=always" })
   if not result then
     return false
   end
@@ -103,9 +104,7 @@ function M.refresh(buf)
   if lines[#lines] == "" then
     table.remove(lines)
   end
-  vim.bo[buf].modifiable = true
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-  vim.bo[buf].modifiable = false
+  ansi.render(buf, lines)
   apply_mark_highlights(buf)
   return true
 end

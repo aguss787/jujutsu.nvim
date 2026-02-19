@@ -1,6 +1,7 @@
 local M = {}
 
 local jj = require("jujutsu.jj")
+local ansi = require("jujutsu.ansi")
 
 local show_all = false
 
@@ -14,7 +15,7 @@ end
 ---@param buf integer
 ---@return boolean success
 function M.refresh(buf)
-  local cmd = { "bookmark", "list" }
+  local cmd = { "bookmark", "list", "--color=always" }
   if show_all then
     table.insert(cmd, "--all-remotes")
   end
@@ -26,9 +27,7 @@ function M.refresh(buf)
   if lines[#lines] == "" then
     table.remove(lines)
   end
-  vim.bo[buf].modifiable = true
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-  vim.bo[buf].modifiable = false
+  ansi.render(buf, lines)
   return true
 end
 
