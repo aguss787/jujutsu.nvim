@@ -63,6 +63,16 @@ function M.setup_keymaps(buf, keymaps)
     end
   end
 
+  map(keymaps.new, function()
+    local name = cursor_bookmark()
+    if not name then
+      return
+    end
+    if jj.run({ "new", name }) then
+      M.refresh(buf)
+    end
+  end, "jj new from bookmark under cursor")
+
   map(keymaps.delete, function()
     local name = cursor_bookmark()
     if not name then

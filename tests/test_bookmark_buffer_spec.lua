@@ -132,6 +132,14 @@ describe("bookmark buffer operations", function()
     end
   end)
 
+  it("new calls jj new with cursor bookmark", function()
+    vim.api.nvim_buf_call(buf, function()
+      vim.api.nvim_win_set_cursor(0, { 1, 0 })
+      get_cb(buf, "n")()
+    end)
+    assert.is_true(was_called(calls, { "jj", "new", "master" }))
+  end)
+
   it("delete calls jj bookmark delete on cursor bookmark", function()
     vim.api.nvim_buf_call(buf, function()
       vim.api.nvim_win_set_cursor(0, { 1, 0 })
