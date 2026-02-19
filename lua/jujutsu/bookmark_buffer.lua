@@ -5,10 +5,39 @@ local ansi = require("jujutsu.ansi")
 
 local show_all = false
 
+---@type table<string, boolean>
+local marked_bookmarks = {}
+local marks_ns = vim.api.nvim_create_namespace("jjbookmark_marks")
+
 ---Extract the bookmark name from the current line, or nil if none
 ---@return string?
 local function cursor_bookmark()
   return vim.api.nvim_get_current_line():match("^(%S+):")
+end
+
+---Re-apply mark highlights to buf based on marked_bookmarks
+---@param buf integer
+local function apply_mark_highlights(buf)
+  vim.api.nvim_buf_clear_namespace(buf, marks_ns, 0, -1)
+  for i, line in ipairs(vim.api.nvim_buf_get_lines(buf, 0, -1, false)) do
+    local name = line:match("^(%S+):")
+    if name and marked_bookmarks[name] then
+      vim.api.nvim_buf_set_extmark(buf, marks_ns, i - 1, 0, { line_hl_group = "Visual" })
+    end
+  end
+end
+
+---Return marked bookmarks if any, otherwise the bookmark on the current line
+---@return string[]?
+local function resolve_bookmarks()
+  local names = vim.tbl_keys(marked_bookmarks)
+  if #names > 0 then
+    return names
+  end
+  local name = cursor_bookmark()
+  if name then
+    return { name }
+  end
 end
 
 ---Fetch `jj bookmark list` output and replace the contents of buf
@@ -34,12 +63,14 @@ function M.refresh(buf)
     local line_count = vim.api.nvim_buf_line_count(buf)
     pcall(vim.api.nvim_win_set_cursor, win, { math.min(cursor[1], line_count), cursor[2] })
   end
+  apply_mark_highlights(buf)
   return true
 end
 
----Reset toggle state to local-only (called when a new buffer is created)
+---Reset toggle state and marks (called when a new buffer is created)
 function M.reset()
   show_all = false
+  marked_bookmarks = {}
 end
 
 ---Set up buffer-local keymaps for the bookmark buffer
@@ -68,14 +99,31 @@ function M.setup_keymaps(buf, keymaps)
     require("jujutsu").op()
   end, "Switch to op buffer")
 
-  local function track_action(subcmd)
+  map(keymaps.mark, function()
     local name = cursor_bookmark()
     if not name then
       return
     end
-    local target = jj.with_remote(name)
-    if jj.run({ "bookmark", subcmd, target }) then
-      vim.notify("jj bookmark " .. subcmd .. ": " .. target, vim.log.levels.INFO)
+    marked_bookmarks[name] = not marked_bookmarks[name] or nil
+    apply_mark_highlights(buf)
+  end, "Toggle mark on bookmark under cursor")
+
+  map(keymaps.clear_marks, function()
+    marked_bookmarks = {}
+    vim.api.nvim_buf_clear_namespace(buf, marks_ns, 0, -1)
+  end, "Clear all marks")
+
+  local function track_action(subcmd)
+    local names = resolve_bookmarks()
+    if not names then
+      return
+    end
+    local targets = vim.tbl_map(jj.with_remote, names)
+    local cmd = { "bookmark", subcmd }
+    vim.list_extend(cmd, targets)
+    if jj.run(cmd) then
+      vim.notify("jj bookmark " .. subcmd .. ": " .. table.concat(targets, ", "), vim.log.levels.INFO)
+      marked_bookmarks = {}
       M.refresh(buf)
     end
   end
@@ -101,11 +149,14 @@ function M.setup_keymaps(buf, keymaps)
   end, "jj new from bookmark and switch to log")
 
   map(keymaps.delete, function()
-    local name = cursor_bookmark()
-    if not name then
+    local names = resolve_bookmarks()
+    if not names then
       return
     end
-    if jj.run({ "bookmark", "delete", name }) then
+    local cmd = { "bookmark", "delete" }
+    vim.list_extend(cmd, names)
+    if jj.run(cmd) then
+      marked_bookmarks = {}
       M.refresh(buf)
     end
   end, "jj bookmark delete")

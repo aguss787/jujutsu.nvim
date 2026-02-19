@@ -45,6 +45,8 @@ describe("bookmark refresh", function()
       lhs_set[km.lhs] = true
     end
     assert.truthy(lhs_set["q"])
+    assert.truthy(lhs_set["m"])
+    assert.truthy(lhs_set["M"])
     assert.truthy(lhs_set["t"])
     assert.truthy(lhs_set["T"])
   end)
@@ -205,5 +207,40 @@ describe("bookmark buffer operations", function()
   it("undo calls jj undo", function()
     get_cb(buf, "u")()
     assert.is_true(was_called(calls, { "jj", "undo" }))
+  end)
+
+  it("delete acts on marked bookmark instead of cursor", function()
+    -- cursor on line 1 (master), mark line 2 (feature)
+    vim.api.nvim_buf_call(buf, function()
+      vim.api.nvim_win_set_cursor(0, { 2, 0 })
+      get_cb(buf, "m")() -- mark feature
+      vim.api.nvim_win_set_cursor(0, { 1, 0 })
+      get_cb(buf, "d")()
+    end)
+    assert.is_true(was_called(calls, { "jj", "bookmark", "delete", "feature" }))
+  end)
+
+  it("track acts on marked bookmark instead of cursor", function()
+    local orig_notify = vim.notify
+    vim.notify = function() end
+    vim.api.nvim_buf_call(buf, function()
+      vim.api.nvim_win_set_cursor(0, { 2, 0 })
+      get_cb(buf, "m")() -- mark feature
+      vim.api.nvim_win_set_cursor(0, { 1, 0 })
+      get_cb(buf, "t")()
+    end)
+    vim.notify = orig_notify
+    assert.is_true(was_called(calls, { "jj", "bookmark", "track", "feature@origin" }))
+  end)
+
+  it("clear_marks causes next operation to use cursor bookmark", function()
+    vim.api.nvim_buf_call(buf, function()
+      vim.api.nvim_win_set_cursor(0, { 2, 0 })
+      get_cb(buf, "m")() -- mark feature
+      get_cb(buf, "M")() -- clear marks
+      vim.api.nvim_win_set_cursor(0, { 1, 0 })
+      get_cb(buf, "d")()
+    end)
+    assert.is_true(was_called(calls, { "jj", "bookmark", "delete", "master" }))
   end)
 end)

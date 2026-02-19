@@ -84,10 +84,11 @@ These keymaps are available in the log, bookmark, and op buffers:
 
 ### Marks
 
-Press `m` to mark revisions. Marks are used differently depending on the operation:
+Press `m` to mark revisions or bookmarks. Marks are used differently depending on the operation:
 
 - **Source revisions:** `n`, `a` act on all marked revisions instead of the cursor revision.
 - **Destination revisions:** `r`, `R`, `p`, `P` use marks as the destination to rebase/duplicate onto. `s` squashes the cursor revision into the single marked destination. `bm`, `bM` move bookmarks from marked revision(s) to the cursor revision.
+- **Bookmark buffer:** `d`, `t`, `T` act on all marked bookmarks instead of the cursor bookmark.
 
 Press `M` to clear all marks.
 
@@ -109,10 +110,12 @@ Opens a selection menu to choose the destination mode:
 | Key    | Action                                                    |
 |--------|-----------------------------------------------------------|
 | `<CR>` | `jj edit` bookmark under cursor and switch to log buffer  |
+| `m`    | Toggle mark on bookmark under cursor                      |
+| `M`    | Clear all marks                                           |
 | `n`    | `jj new` from the bookmark under cursor                   |
-| `d`    | `jj bookmark delete` the bookmark under cursor            |
-| `t`    | `jj bookmark track` the bookmark under cursor (`@origin`) |
-| `T`    | `jj bookmark untrack` the bookmark under cursor (`@origin`) |
+| `d`    | `jj bookmark delete` bookmark(s)                          |
+| `t`    | `jj bookmark track` bookmark(s) (`@origin`)               |
+| `T`    | `jj bookmark untrack` bookmark(s) (`@origin`)             |
 | `r`    | Toggle between local only and all remote bookmarks        |
 | `gf`   | `jj git fetch`                                            |
 | `gp`   | `jj git push -b` the bookmark under cursor                |
@@ -179,6 +182,8 @@ require("jujutsu").setup({
     },
     bookmark = {
       edit                    = "<CR>",
+      mark                    = "m",
+      clear_marks             = "M",
       new                     = "n",
       delete                  = "d",
       track                   = "t",

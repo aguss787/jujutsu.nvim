@@ -33,6 +33,8 @@ local op_buffer = require("jujutsu.op_buffer")
 
 ---@class JujutsuBookmarkKeymaps
 ---@field edit string|false Key to edit the revision of the bookmark under cursor and switch to log
+---@field mark string|false Key to toggle mark on the bookmark under cursor
+---@field clear_marks string|false Key to clear all marks
 ---@field new string|false Key to create a new revision from bookmark under cursor
 ---@field delete string|false Key to delete a bookmark
 ---@field track string|false Key to track a bookmark
@@ -101,6 +103,8 @@ local defaults = {
     },
     bookmark = {
       edit = "<CR>",
+      mark = "m",
+      clear_marks = "M",
       new = "n",
       delete = "d",
       track = "t",
