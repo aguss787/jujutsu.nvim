@@ -156,6 +156,15 @@ describe("bookmark buffer operations", function()
     assert.is_true(was_called(calls, { "jj", "bookmark", "untrack", "feature@origin" }))
   end)
 
+  it("toggle_all refreshes with --all-remotes then back to local", function()
+    get_cb(buf, "r")()
+    assert.is_true(was_called(calls, { "jj", "bookmark", "list", "--all-remotes" }))
+
+    calls = {}
+    get_cb(buf, "r")()
+    assert.is_true(was_called(calls, { "jj", "bookmark", "list" }))
+  end)
+
   it("undo calls jj undo", function()
     get_cb(buf, "u")()
     assert.is_true(was_called(calls, { "jj", "undo" }))

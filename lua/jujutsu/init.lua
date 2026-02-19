@@ -32,6 +32,7 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@field delete string|false Key to delete a bookmark
 ---@field track string|false Key to track a bookmark
 ---@field untrack string|false Key to untrack a bookmark
+---@field toggle_all string|false Key to toggle between local and all remote bookmarks
 ---@field undo string|false Key to undo the last operation
 ---@field goto_log string|false Key to switch to the log buffer
 ---@field goto_bookmark string|false Key to switch to the bookmark buffer
@@ -78,6 +79,7 @@ local defaults = {
       delete = "d",
       track = "t",
       untrack = "T",
+      toggle_all = "r",
       undo = "u",
       goto_log = "gl",
       goto_bookmark = "gb",

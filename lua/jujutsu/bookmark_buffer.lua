@@ -2,6 +2,8 @@ local M = {}
 
 local jj = require("jujutsu.jj")
 
+local show_all = false
+
 ---Extract the bookmark name from the current line, or nil if none
 ---@return string?
 local function cursor_bookmark()
@@ -12,7 +14,11 @@ end
 ---@param buf integer
 ---@return boolean success
 function M.refresh(buf)
-  local result = jj.run({ "bookmark", "list" })
+  local cmd = { "bookmark", "list" }
+  if show_all then
+    table.insert(cmd, "--all-remotes")
+  end
+  local result = jj.run(cmd)
   if not result then
     return false
   end
@@ -71,6 +77,13 @@ function M.setup_keymaps(buf, keymaps)
   map(keymaps.untrack, function()
     track_action("untrack")
   end, "jj bookmark untrack")
+
+  map(keymaps.toggle_all, function()
+    show_all = not show_all
+    M.refresh(buf)
+    local mode = show_all and "all remotes" or "local only"
+    vim.notify("jj bookmark list: " .. mode, vim.log.levels.INFO)
+  end, "Toggle between local and all remote bookmarks")
 
   map(keymaps.undo, function()
     if jj.run({ "undo" }) then
