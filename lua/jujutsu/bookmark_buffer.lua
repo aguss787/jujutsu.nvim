@@ -68,6 +68,16 @@ function M.setup_keymaps(buf, keymaps)
     end
   end
 
+  map(keymaps.edit, function()
+    local name = cursor_bookmark()
+    if not name then
+      return
+    end
+    if jj.run({ "edit", name }) then
+      require("jujutsu").log()
+    end
+  end, "jj edit bookmark and switch to log")
+
   map(keymaps.new, function()
     local name = cursor_bookmark()
     if not name then

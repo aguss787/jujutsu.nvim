@@ -29,6 +29,7 @@ local bookmark_buffer = require("jujutsu.bookmark_buffer")
 ---@field refresh string|false Key to refresh the buffer
 
 ---@class JujutsuBookmarkKeymaps
+---@field edit string|false Key to edit the revision of the bookmark under cursor and switch to log
 ---@field new string|false Key to create a new revision from bookmark under cursor
 ---@field delete string|false Key to delete a bookmark
 ---@field track string|false Key to track a bookmark
@@ -80,6 +81,7 @@ local defaults = {
       refresh = "<C-r>",
     },
     bookmark = {
+      edit = "<CR>",
       new = "n",
       delete = "d",
       track = "t",

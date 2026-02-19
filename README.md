@@ -98,17 +98,18 @@ Opens a selection menu to choose the destination mode:
 
 ## Bookmark Buffer Keymaps
 
-| Key | Action                                                    |
-|-----|-----------------------------------------------------------|
-| `n` | `jj new` from the bookmark under cursor                      |
-| `d` | `jj bookmark delete` the bookmark under cursor              |
-| `t` | `jj bookmark track` the bookmark under cursor (`@origin`)   |
-| `T` | `jj bookmark untrack` the bookmark under cursor (`@origin`) |
-| `r` | Toggle between local only and all remote bookmarks           |
-| `gf`| `jj git fetch`                                               |
-| `gp`| `jj git push -b` the bookmark under cursor                   |
-| `gP`| `jj git push --all --deleted`                                |
-| `u` | `jj undo`                                                    |
+| Key    | Action                                                    |
+|--------|-----------------------------------------------------------|
+| `<CR>` | `jj edit` bookmark under cursor and switch to log buffer  |
+| `n`    | `jj new` from the bookmark under cursor                   |
+| `d`    | `jj bookmark delete` the bookmark under cursor            |
+| `t`    | `jj bookmark track` the bookmark under cursor (`@origin`) |
+| `T`    | `jj bookmark untrack` the bookmark under cursor (`@origin`) |
+| `r`    | Toggle between local only and all remote bookmarks        |
+| `gf`   | `jj git fetch`                                            |
+| `gp`   | `jj git push -b` the bookmark under cursor                |
+| `gP`   | `jj git push --all --deleted`                             |
+| `u`    | `jj undo`                                                 |
 
 ## Configuration
 
@@ -152,6 +153,7 @@ require("jujutsu").setup({
       refresh                 = "<C-r>",
     },
     bookmark = {
+      edit                    = "<CR>",
       new                     = "n",
       delete                  = "d",
       track                   = "t",
