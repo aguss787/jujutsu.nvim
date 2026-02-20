@@ -71,7 +71,7 @@ LOG BUFFER KEYMAPS                                       *jujutsu-log-keymaps*
   `M`       Clear all marks
   `<C-n>`   `jj new` from revision(s)
   `a`       `jj abandon` revision(s)
-  `s`       `jj squash` into parent, or into single marked rev
+  `s`       `jj squash` into parent, or marked rev(s) into cursor
   `r`       `jj rebase -s` revision onto marked destination(s)
   `R`       `jj rebase` with source/destination mode picker
   `u`       `jj undo`
@@ -143,7 +143,7 @@ depending on the operation:
 
   Destination revisions ~
     `r`, `R`, `p`, `P` use marks as the destination to rebase/duplicate onto.
-    `s` squashes the cursor revision into the single marked destination.
+    `s` squashes marked revision(s) into the cursor revision.
     `bm`, `bM` move bookmarks from marked revision(s) to the cursor revision.
 
   Bookmark buffer ~

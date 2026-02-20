@@ -65,7 +65,7 @@ These keymaps are available in the log, bookmark, and op buffers:
 | `M`    | Clear all marks                                     |
 | `<C-n>`| `jj new` from revision(s)                           |
 | `a`    | `jj abandon` revision(s)                            |
-| `s`    | `jj squash` into parent, or into single marked rev  |
+| `s`    | `jj squash` into parent, or marked rev(s) into cursor |
 | `r`    | `jj rebase -s` revision onto marked destination(s)  |
 | `R`    | `jj rebase` with source/destination mode picker     |
 | `u`    | `jj undo`                                           |
@@ -87,7 +87,8 @@ These keymaps are available in the log, bookmark, and op buffers:
 Press `m` to mark revisions or bookmarks. Marks are used differently depending on the operation:
 
 - **Source revisions:** `<C-n>`, `a` act on all marked revisions instead of the cursor revision.
-- **Destination revisions:** `r`, `R`, `p`, `P` use marks as the destination to rebase/duplicate onto. `s` squashes the cursor revision into the single marked destination. `bm`, `bM` move bookmarks from marked revision(s) to the cursor revision.
+- **Destination revisions:** `r`, `R`, `p`, `P` use marks as the destination to rebase/duplicate onto. `bm`, `bM` move bookmarks from marked revision(s) to the cursor revision.
+- **Source revisions for squash:** `s` squashes marked revision(s) into the cursor revision.
 - **Bookmark buffer:** `d`, `t`, `T` act on all marked bookmarks instead of the cursor bookmark.
 
 Press `M` to clear all marks.

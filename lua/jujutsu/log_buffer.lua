@@ -162,21 +162,21 @@ function M.setup_keymaps(buf, keymaps)
     if not rev then
       return
     end
-    local dests = vim.tbl_keys(marked_revs)
+    local sources = vim.tbl_keys(marked_revs)
     local cmd
-    if #dests == 0 then
+    if #sources == 0 then
       cmd = { "squash", "-r", rev }
-    elseif #dests == 1 then
-      cmd = { "squash", "--from", rev, "--into", dests[1] }
     else
-      vim.notify("jj squash: mark a single destination revision", vim.log.levels.ERROR)
-      return
+      cmd = { "squash", "--into", rev }
+      for _, source in ipairs(sources) do
+        vim.list_extend(cmd, { "--from", source })
+      end
     end
     if jj.run(cmd) then
       marked_revs = {}
       M.refresh(buf)
     end
-  end, "jj squash revision into parent or marked revision")
+  end, "jj squash marked revision(s) into cursor revision")
 
   map(keymaps.rebase, function()
     local rev = cursor_rev()

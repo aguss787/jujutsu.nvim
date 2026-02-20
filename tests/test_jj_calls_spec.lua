@@ -118,10 +118,10 @@ describe("jj operation calls", function()
     assert.is_true(was_called(calls, { "jj", "squash", "-r", "rev00001" }))
   end)
 
-  it("squash with one mark calls jj squash --from <rev> --into <dest>", function()
-    on_line(buf, 2, get_cb(buf, "m")) -- mark rev00002 as destination
-    on_line(buf, 1, get_cb(buf, "s")) -- squash rev00001 into rev00002
-    assert.is_true(was_called(calls, { "jj", "squash", "--from", "rev00001", "--into", "rev00002" }))
+  it("squash with one mark calls jj squash --into <rev> --from <mark>", function()
+    on_line(buf, 2, get_cb(buf, "m")) -- mark rev00002 as source
+    on_line(buf, 1, get_cb(buf, "s")) -- squash rev00002 into rev00001
+    assert.is_true(was_called(calls, { "jj", "squash", "--into", "rev00001", "--from", "rev00002" }))
   end)
 
   it("rebase calls jj rebase -s <rev> -d <dest>", function()
