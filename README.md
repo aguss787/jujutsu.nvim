@@ -81,6 +81,7 @@ These keymaps are available in the log, bookmark, and op buffers:
 | `d`    | Edit revision description                           |
 | `p`    | `jj duplicate --onto` marked destination(s)         |
 | `P`    | `jj duplicate` with destination mode picker         |
+| `K`    | Open diff viewer for revision under cursor          |
 
 ### Marks
 
@@ -105,6 +106,26 @@ Opens two selection menus to choose the rebase mode:
 Opens a selection menu to choose the destination mode:
 
 - `--onto` (duplicate onto destination), `--insert-after` (insert after), `--insert-before` (insert before)
+
+### Diff Viewer (`K`)
+
+Opens a new tab with the changed files for the revision under cursor.
+The tab has three panes:
+
+- **Left:** file content before the change (parent revision)
+- **Right:** file content after the change
+- **Bottom:** list of changed files
+
+Press `<CR>` on a file in the list to view its diff. Press `q` to close
+the diff tab.
+
+Neovim's built-in diff mode is used, so added/removed/changed lines are
+highlighted automatically.
+
+| Key    | Action                              |
+|--------|-------------------------------------|
+| `<CR>` | Show diff for the file under cursor |
+| `q`    | Close the diff tab                  |
 
 ## Bookmark Buffer Keymaps
 
@@ -172,6 +193,7 @@ require("jujutsu").setup({
       bookmark_move_backwards = "bM",
       bookmark_track          = "bt",
       bookmark_untrack        = "bT",
+      diff                    = "K",
       git_fetch               = "gf",
       git_push                = "gp",
       git_push_all            = "gP",
@@ -208,6 +230,10 @@ require("jujutsu").setup({
       goto_bookmark           = "gb",
       goto_op                 = "go",
       refresh                 = "<C-r>",
+    },
+    diff = {
+      select                  = "<CR>",
+      quit                    = "q",
     },
   },
 })

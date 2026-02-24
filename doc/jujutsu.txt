@@ -12,7 +12,8 @@ CONTENTS                                                     *jujutsu-contents*
   7. Bookmark Buffer Keymaps ..... |jujutsu-bookmark-keymaps|
   8. Op Buffer Keymaps ........... |jujutsu-op-keymaps|
   9. Marks ....................... |jujutsu-marks|
-  10. Configuration .............. |jujutsu-configuration|
+  10. Diff Viewer ................ |jujutsu-diff-viewer|
+  11. Configuration .............. |jujutsu-configuration|
 
 ==============================================================================
 INTRODUCTION                                             *jujutsu-introduction*
@@ -87,6 +88,7 @@ LOG BUFFER KEYMAPS                                       *jujutsu-log-keymaps*
   `gf`      `jj git fetch`
   `gp`      `jj git push -r` revision(s)
   `gP`      `jj git push --all --deleted`
+  `K`       Open diff viewer for revision (see |jujutsu-diff-viewer|)
 
 REBASE MODE PICKER (`R`) ~
 
@@ -152,6 +154,27 @@ depending on the operation:
 Press `M` to clear all marks.
 
 ==============================================================================
+DIFF VIEWER                                             *jujutsu-diff-viewer*
+
+Press `K` on a revision in the log buffer to open a diff viewer in a new tab.
+
+The tab layout has three panes:
+
+  Left pane:   File content before the change (parent revision)
+  Right pane:  File content after the change (current revision)
+  Bottom pane: List of changed files from `jj diff -r <rev> --summary`
+
+  `<CR>`    Show diff for the file under cursor
+  `q`       Close the diff tab
+
+Neovim's built-in diff mode is used, providing automatic highlighting for
+added, removed, and changed lines. Syntax highlighting is applied based on
+the file extension.
+
+Added files (A) show an empty left pane. Deleted files (D) show an empty
+right pane.
+
+==============================================================================
 CONFIGURATION                                           *jujutsu-configuration*
 
 Pass a table to |jujutsu-setup| to override defaults: >lua
@@ -215,8 +238,8 @@ cache_gpg ~
                                                            *jujutsu-keymaps*
 keymaps ~
   Type: `table`
-  Keymaps are split into `log`, `bookmark`, and `op` sub-tables. Only the
-  keys you specify are overridden; the rest keep their defaults.
+  Keymaps are split into `log`, `bookmark`, `op`, and `diff` sub-tables.
+  Only the keys you specify are overridden; the rest keep their defaults.
 
   Set a keymap to `false` to disable it: >lua
 
@@ -248,6 +271,7 @@ keymaps ~
     `bookmark_move_backwards` `"bM"`
     `bookmark_track`          `"bt"`
     `bookmark_untrack`        `"bT"`
+    `diff`                    `"K"`
     `git_fetch`               `"gf"`
     `git_push`                `"gp"`
     `git_push_all`            `"gP"`
@@ -284,6 +308,10 @@ keymaps ~
     `goto_bookmark`           `"gb"`
     `goto_op`                 `"go"`
     `refresh`                 `"<C-r>"`
+
+  Diff keymaps (defaults): ~
+    `select`                  `"<CR>"`
+    `quit`                    `"q"`
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:

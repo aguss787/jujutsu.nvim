@@ -24,6 +24,7 @@ local op_buffer = require("jujutsu.op_buffer")
 ---@field bookmark_untrack string|false Key to untrack a remote bookmark
 ---@field git_fetch string|false Key to run jj git fetch
 ---@field git_push string|false Key to run jj git push -r on revision(s)
+---@field diff string|false Key to open diff viewer for the revision under cursor
 ---@field git_push_all string|false Key to run jj git push --all --deleted
 ---@field quit string|false Key to close the buffer
 ---@field goto_log string|false Key to switch to the log buffer
@@ -59,10 +60,15 @@ local op_buffer = require("jujutsu.op_buffer")
 ---@field goto_op string|false Key to switch to the op buffer
 ---@field refresh string|false Key to refresh the buffer
 
+---@class JujutsuDiffKeymaps
+---@field select string|false Key to show diff for the file under cursor
+---@field quit string|false Key to close the diff tab
+
 ---@class JujutsuKeymaps
 ---@field log JujutsuLogKeymaps
 ---@field bookmark JujutsuBookmarkKeymaps
 ---@field op JujutsuOpKeymaps
+---@field diff JujutsuDiffKeymaps
 
 ---@class JujutsuConfig
 ---@field keymaps JujutsuKeymaps
@@ -94,6 +100,7 @@ local defaults = {
       bookmark_untrack = "bT",
       git_fetch = "gf",
       git_push = "gp",
+      diff = "K",
       git_push_all = "gP",
       quit = "q",
       goto_log = "gl",
@@ -128,6 +135,10 @@ local defaults = {
       goto_bookmark = "gb",
       goto_op = "go",
       refresh = "<C-r>",
+    },
+    diff = {
+      select = "<CR>",
+      quit = "q",
     },
   },
   split = "vertical",

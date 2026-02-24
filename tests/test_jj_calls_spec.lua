@@ -277,6 +277,18 @@ describe("jj operation calls", function()
     assert.is_true(was_called(calls, { "jj", "new", "rev00004" }))
   end)
 
+  it("diff opens diff viewer for revision under cursor", function()
+    local diff_opened = {}
+    package.loaded["jujutsu.diff_buffer"] = {
+      open = function(rev, keymaps)
+        diff_opened = { rev = rev, keymaps = keymaps }
+      end,
+    }
+    on_line(buf, 1, get_cb(buf, "K"))
+    assert.equal("rev00001", diff_opened.rev)
+    package.loaded["jujutsu.diff_buffer"] = nil
+  end)
+
   it("clear_marks removes marks so next operation uses cursor revision", function()
     on_line(buf, 2, get_cb(buf, "m")) -- mark rev00002
     on_line(buf, 1, get_cb(buf, "M")) -- clear all marks

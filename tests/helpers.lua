@@ -7,6 +7,7 @@ M.default_keymaps = vim.deepcopy(jujutsu.config.keymaps)
 M.default_log_keymaps = M.default_keymaps.log
 M.default_bookmark_keymaps = M.default_keymaps.bookmark
 M.default_op_keymaps = M.default_keymaps.op
+M.default_diff_keymaps = M.default_keymaps.diff
 
 ---Find the callback registered for a normal-mode lhs on buf.
 ---@param buf integer

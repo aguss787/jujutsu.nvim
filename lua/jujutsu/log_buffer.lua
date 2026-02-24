@@ -392,6 +392,14 @@ function M.setup_keymaps(buf, keymaps)
     end)
   end, "jj duplicate with destination mode picker")
 
+  map(keymaps.diff, function()
+    local rev = cursor_rev()
+    if not rev then
+      return
+    end
+    require("jujutsu.diff_buffer").open(rev, require("jujutsu").config.keymaps.diff)
+  end, "Open diff viewer for revision under cursor")
+
   map(keymaps.quit, function()
     vim.cmd("close")
   end, "Close the buffer")
