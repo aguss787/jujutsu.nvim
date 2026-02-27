@@ -7,7 +7,7 @@ local marks_ns = vim.api.nvim_create_namespace("jjlog_marks")
 local jj = require("jujutsu.jj")
 local ansi = require("jujutsu.ansi")
 
-local REV_PATTERN = "[@◉○◆]%s+(%w+)"
+local REV_PATTERN = "[@◉○◆][%s│]+(%w+)"
 
 ---Extract the revision ID from the current line, or nil if none
 ---@return string?

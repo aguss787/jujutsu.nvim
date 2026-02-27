@@ -5,16 +5,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 Format Lua code (requires [stylua](https://github.com/JohnnyMorganz/StyLua)):
-```sh
-stylua lua/ plugin/
+
+```sh stylua lua/ plugin/
+
 ```
 
 Generate help tags from within Neovim:
+
 ```vim
 :helptags doc/
 ```
 
 Load the plugin into a running Neovim instance for testing:
+
 ```vim
 :lua vim.opt.rtp:prepend("~/src/jujutsu.nvim")
 :source ~/src/jujutsu.nvim/plugin/jujutsu.lua
@@ -22,6 +25,7 @@ Load the plugin into a running Neovim instance for testing:
 ```
 
 Reload the Lua module after changes (without restarting Neovim):
+
 ```vim
 :lua package.loaded["jujutsu"] = nil; require("jujutsu").setup()
 ```
@@ -33,10 +37,12 @@ Reload the Lua module after changes (without restarting Neovim):
 **Core logic:** `lua/jujutsu/init.lua` — exposes `M.setup()`, `M.log()`, and `M.bookmark()`. Manages config, buffer lifecycle, and window management (the `show_buf()` helper handles reusing windows between log and bookmark buffers).
 
 **Buffer modules:**
+
 - `lua/jujutsu/log_buffer.lua` — `refresh(buf)` and `setup_keymaps(buf, keymaps)` for the log buffer. Contains all log-specific keymap handlers, mark state, and jj operation logic.
 - `lua/jujutsu/bookmark_buffer.lua` — `refresh(buf)` and `setup_keymaps(buf, keymaps)` for the bookmark list buffer. Contains bookmark-specific keymaps (track/untrack).
 
 **Shared modules:**
+
 - `lua/jujutsu/jj.lua` — `M.run(args)` (sync) and `M.run_async(id, msg, args, on_success)` (async with progress notifications). All jj command execution goes through this module.
 - `lua/jujutsu/progress.lua` — LSP progress notification helpers for noice.nvim integration.
 
@@ -45,11 +51,13 @@ Reload the Lua module after changes (without restarting Neovim):
 **Keymaps config:** Split into `keymaps.log` and `keymaps.bookmark` sub-tables, each passed to their respective buffer module's `setup_keymaps()`. Shared keymaps (`goto_log`, `goto_bookmark`, `refresh`) appear in both.
 
 **Adding a new subcommand:**
+
 1. Add the function to `lua/jujutsu/init.lua`
 2. Add a branch to the `if/elseif` chain in `plugin/jujutsu.lua`
 3. Add the subcommand name to the `complete` return table in `plugin/jujutsu.lua`
 
 **Key conventions:**
+
 - Use `require("jujutsu.jj").run(args)` for sync jj calls and `.run_async(id, msg, args, on_success)` for async
 - Buffers are scratch buffers (`vim.api.nvim_create_buf(false, true)`) with `bufhidden = "wipe"` and `modifiable = false` except during refresh
 - Buffer-local keymaps use `{ buffer = buf }` — never set global keymaps from within feature functions
@@ -59,11 +67,13 @@ Reload the Lua module after changes (without restarting Neovim):
 ## Testing
 
 Run the test suite:
+
 ```sh
 make test
 ```
 
 **Every new feature must have tests.** Add them to the appropriate file in `tests/`:
+
 - `test_init_spec.lua` — config, setup behaviour, and window management (log/bookmark switching)
 - `test_log_buffer_spec.lua` — log buffer state and keymap registration
 - `test_bookmark_buffer_spec.lua` — bookmark buffer state, keymap registration, and bookmark operations
@@ -78,6 +88,7 @@ When adding a new log buffer jj operation, add a test to `test_jj_calls_spec.lua
 ## Version Control
 
 This repo uses **Jujutsu (`jj`)** for version control (not plain git). Use `jj` commands for all VCS operations:
+
 - `jj log` — view history
 - `jj commit -m "msg"` — commit working copy
 - `jj describe -r <rev> -m "msg"` — rewrite a commit message

@@ -3,7 +3,7 @@ local M = {}
 local jj = require("jujutsu.jj")
 local ansi = require("jujutsu.ansi")
 
-local OP_PATTERN = "[@○]%s+(%w+)"
+local OP_PATTERN = "[@○][%s│](%w+)"
 
 ---Extract the operation ID from the current line, or nil if none
 ---@return string?
